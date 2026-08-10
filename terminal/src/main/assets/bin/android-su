@@ -3,7 +3,7 @@
 #
 # Root Android shell (NON-chroot) using the bundled static bash.
 
-STRYKER_FILES=/data/data/com.zalexdev.stryker/files
+STRYKER_FILES=/data/data/com.opxdemon/files
 
 # Android-side PATH (include common su manager locations).
 export PATH=$STRYKER_FILES/usr/bin:$STRYKER_FILES/usr/sbin:/sbin:/system/bin:/system/xbin:/system/sbin:/su/bin:/magisk/.core/bin:/debug_ramdisk:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/odm/bin:/vendor/bin:.

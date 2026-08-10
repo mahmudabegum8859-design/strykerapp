@@ -34,14 +34,14 @@
                     app:tint="@color/night_contrast" />
 
                 <TextView
-                    android:id="@+id/stryker_main_logo"
+                    android:id="@+id/opxdemon_main_logo"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:fontFamily="@font/lato"
-                    android:text="StrykerOSS"
+                    android:text="OPXdemon"
                     android:textSize="26dp"
                     android:textStyle="bold" />
 
@@ -54,6 +54,22 @@
                     android:src="@drawable/settings"
                     app:tint="@color/night_contrast" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tour_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/tour_banner"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:text="@string/tour_banner_text"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/flContent"

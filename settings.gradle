@@ -16,7 +16,7 @@ dependencyResolutionManagement {
         jcenter()
     }
 }
-rootProject.name = "Stryker"
+rootProject.name = "OPXDemon"
 include ':app'
 
 include ':terminal'

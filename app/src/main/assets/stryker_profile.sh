@@ -1,4 +1,4 @@
-# Stryker chroot shell environment.
+# OPXDemon chroot shell environment.
 #
 # Deployed into the chroot at /etc/stryker_profile.sh and sourced from
 # /etc/profile, so every interactive login shell the terminal opens (it enters
@@ -7,7 +7,7 @@
 #
 # Note: \h is intentionally NOT used — the chroot shares the device UTS
 # namespace, so \h is the Android hostname ("localhost"), which is exactly the
-# dull prompt this replaces. We brand the prompt "⚡Stryker" instead.
+# dull prompt this replaces. We brand the prompt "⚡OPXDemon" instead.
 
 # Only dress up interactive shells.
 case "$-" in
@@ -29,9 +29,9 @@ else
 fi
 __s_tip="${__s_brand}"'\$'"${__s_rst}"
 
-#   ┌──(⚡Stryker)─[ ~/current/path ]
+#   ┌──(⚡OPXDemon)─[ ~/current/path ]
 #   └─#
-PS1="${__s_rail}┌──${__s_rst}${__s_dim}(${__s_rst}${__s_brand}⚡Stryker${__s_rst}${__s_dim})${__s_rst}${__s_dim}─[${__s_rst}${__s_path}\\w${__s_rst}${__s_dim}]${__s_rst}\n${__s_rail}└─${__s_rst}${__s_tip} "
+PS1="${__s_rail}┌──${__s_rst}${__s_dim}(${__s_rst}${__s_brand}⚡OPXDemon${__s_rst}${__s_dim})${__s_rst}${__s_dim}─[${__s_rst}${__s_path}\\w${__s_rst}${__s_dim}]${__s_rst}\n${__s_rail}└─${__s_rst}${__s_tip} "
 PS2="${__s_rail}└─${__s_rst}${__s_dim}>${__s_rst} "
 export PS1 PS2
 [ -z "$TERM" ] && export TERM=xterm-256color

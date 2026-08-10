@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="dialog_background_color">#FFFFFFFF</color>
-    <color name="stryker_accent_contrast">#304FFE</color>
-    <color name="stryker_accent">#1565C0</color>
+    <color name="opxdemon_accent_contrast">#304FFE</color>
+    <color name="opxdemon_accent">#1565C0</color>
     <color name="stryker_logo_accent">#1565C0</color>
     <color name="yellow">#F9A825</color>
     <color name="red">#C62828</color>
@@ -39,6 +39,9 @@
 
     <!-- Disabled ROOT-section rows. -->
     <color name="row_locked">#61757575</color>
+
+    <!-- Tour mode banner. -->
+    <color name="tour_banner">#B45309</color>
 
     <!-- Icon tile discs. Kept readable against the card in BOTH themes: pastel on light,
          low-alpha hue on dark (the pastels used to render as near-white blobs at night). -->

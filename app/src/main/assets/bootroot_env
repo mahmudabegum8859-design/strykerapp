@@ -4,7 +4,7 @@
 unset LD_PRELOAD
 
 ## Define the owner app package name.
-APP_PGK_NAME=com.zalexdev.stryker
+APP_PGK_NAME=com.opxdemon
 
 ## Login shell used inside the Debian chroot.
 CHROOT_SHELL=/bin/bash

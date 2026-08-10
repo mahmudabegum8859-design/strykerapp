@@ -82,7 +82,7 @@
                 android:autoLink="all"
                 android:gravity="end"
                 android:text="Device info\nOS"
-                android:textColorLink="@color/stryker_accent_contrast"
+                android:textColorLink="@color/opxdemon_accent_contrast"
                 android:textSize="15dp"
                 android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
@@ -123,7 +123,7 @@
             android:layout_gravity="center"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="Special thanks for: Nevod, Jb314, Max, Lukas, Mirivan, The Show Started and Stryker community"
+            android:text="Special thanks for: Nevod, Jb314, Max, Lukas, Mirivan, The Show Started and OPXDemon community"
             android:textColor="@color/grey" />
 
         <TextView
@@ -143,7 +143,7 @@
             android:layout_gravity="center"
             android:layout_margin="20dp"
             android:gravity="center"
-            android:text="StrykerOSS — free and open-source"
+            android:text="OPXdemon — free and open-source"
             android:textStyle="bold" />
 
     </LinearLayout>

@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/lato"
-                    android:text="StrykerOSS"
+                    android:text="OPXdemon"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -137,7 +137,7 @@
             android:letterSpacing="0.08"
             android:text="ESSENTIALS"
             android:textAllCaps="true"
-            android:textColor="@color/stryker_accent"
+            android:textColor="@color/opxdemon_accent"
             android:textSize="11sp"
             android:textStyle="bold" />
 

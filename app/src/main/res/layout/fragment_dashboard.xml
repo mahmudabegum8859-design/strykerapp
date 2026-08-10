@@ -152,7 +152,7 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <com.zalexdev.stryker.utils.VmRingView
+                    <com.opxdemon.utils.VmRingView
                         android:id="@+id/vm_ring"
                         android:layout_width="52dp"
                         android:layout_height="52dp" />
@@ -338,7 +338,7 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <com.zalexdev.stryker.utils.SparklineView
+                        <com.opxdemon.utils.SparklineView
                             android:id="@+id/vm_cpu_stat_graph"
                             android:layout_width="match_parent"
                             android:layout_height="46dp"
@@ -371,7 +371,7 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <com.zalexdev.stryker.utils.SparklineView
+                        <com.opxdemon.utils.SparklineView
                             android:id="@+id/vm_ram_stat_graph"
                             android:layout_width="match_parent"
                             android:layout_height="46dp"
@@ -562,7 +562,7 @@
             android:letterSpacing="0.08"
             android:text="@string/dashboard_section_tools"
             android:textAllCaps="true"
-            android:textColor="@color/stryker_accent"
+            android:textColor="@color/opxdemon_accent"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -609,7 +609,7 @@
                                 android:layout_height="30dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/wifi"
-                                app:tint="@color/stryker_accent" />
+                                app:tint="@color/opxdemon_accent" />
                         </FrameLayout>
 
                         <com.google.android.material.textview.MaterialTextView
@@ -963,7 +963,7 @@
                         android:background="@drawable/settings_icon_bg"
                         android:padding="10dp"
                         android:src="@drawable/latest_wifi"
-                        app:tint="@color/stryker_accent" />
+                        app:tint="@color/opxdemon_accent" />
 
                     <LinearLayout
                         android:layout_width="0dp"

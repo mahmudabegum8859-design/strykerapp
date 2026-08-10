@@ -11,7 +11,7 @@
 # is unavailable in the rootfs we fall back to a plain login shell (current
 # behaviour), so there is never a regression.
 
-STRYKER_FILES=/data/data/com.zalexdev.stryker/files
+STRYKER_FILES=/data/data/com.opxdemon/files
 ROOTLESS_FLAG=$STRYKER_FILES/rootless/.active
 MARKER=$STRYKER_FILES/.vm_pty_resize
 
@@ -78,7 +78,7 @@ if [ -e "$ROOTLESS_FLAG" ]; then
 
     if [ "$port" = "1052" ]; then
         echo "[*] Connected to the VM shell (${cols}x${rows}, resizable)."
-        tmp=$("$BB" mktemp -d 2>/dev/null) || tmp=/data/data/com.zalexdev.stryker/files/.ptysess.$$
+        tmp=$("$BB" mktemp -d 2>/dev/null) || tmp=/data/data/com.opxdemon/files/.ptysess.$$
         "$BB" mkdir -p "$tmp" 2>/dev/null
         fifo=$tmp/in
         "$BB" rm -f "$fifo" 2>/dev/null
@@ -168,7 +168,7 @@ done
 # STRYKER_TRY_SETSID=1 for su implementations that hand over no ctty at all. Either way the
 # attempt runs WITHOUT exec, so a failure falls through instead of killing the session.
 exec "$SU" -c '
-. /data/data/com.zalexdev.stryker/files/bootroot_env
+. /data/data/com.opxdemon/files/bootroot_env
 chroot_env() {
     "$BUSYBOX" chroot "$MNT" /usr/bin/env -i \
         HOME=/root \

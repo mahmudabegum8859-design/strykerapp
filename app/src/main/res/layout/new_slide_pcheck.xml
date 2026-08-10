@@ -31,7 +31,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="18dp"
-            android:text="Stryker probes your hardware to predict which tools will work without surprises."
+            android:text="OPXDemon probes your hardware to predict which tools will work without surprises."
             android:textColor="@color/grey"
             android:textSize="13sp" />
 
@@ -65,7 +65,7 @@
             android:letterSpacing="0.08"
             android:text="CAPABILITIES"
             android:textAllCaps="true"
-            android:textColor="@color/stryker_accent"
+            android:textColor="@color/opxdemon_accent"
             android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone" />
@@ -103,7 +103,7 @@
                         android:background="@drawable/settings_icon_bg"
                         android:padding="10dp"
                         android:src="@drawable/terminal"
-                        app:tint="@color/stryker_accent" />
+                        app:tint="@color/opxdemon_accent" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -170,7 +170,7 @@
                         android:background="@drawable/settings_icon_bg"
                         android:padding="10dp"
                         android:src="@drawable/wifi"
-                        app:tint="@color/stryker_accent" />
+                        app:tint="@color/opxdemon_accent" />
 
                     <LinearLayout
                         android:layout_width="0dp"

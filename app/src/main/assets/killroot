@@ -97,21 +97,21 @@ f_is_mntpoint() {
 }
 
 ########## Unmount sdcard so it wont break internal storage ##########
-# Only /sdcard/Stryker is bind-mounted now (see bootroot f_mount_sdcard), so the
+# Only /sdcard/OPXDemon is bind-mounted now (see bootroot f_mount_sdcard), so the
 # worst case here can never reach beyond our own folder. Prefer a real umount;
 # only remove the chroot-side mountpoint once it is genuinely detached, so we can
 # never rm THROUGH a still-attached bind. Removing the empty mountpoint on success
-# is what lets the app detect "unmounted" (checkFolder .../sdcard/Stryker == false).
+# is what lets the app detect "unmounted" (checkFolder .../sdcard/OPXDemon == false).
 f_umount_sdcard() {
-    if $BUSYBOX mountpoint -q "$MNT/sdcard/Stryker"; then
-        $BUSYBOX umount "$MNT/sdcard/Stryker" 2> /dev/null ||
-            $BUSYBOX umount -l "$MNT/sdcard/Stryker"
+    if $BUSYBOX mountpoint -q "$MNT/sdcard/OPXDemon"; then
+        $BUSYBOX umount "$MNT/sdcard/OPXDemon" 2> /dev/null ||
+            $BUSYBOX umount -l "$MNT/sdcard/OPXDemon"
     fi
-    if $BUSYBOX mountpoint -q "$MNT/sdcard/Stryker"; then
-        echo "[-] $MNT/sdcard/Stryker still mounted; left in place"
+    if $BUSYBOX mountpoint -q "$MNT/sdcard/OPXDemon"; then
+        echo "[-] $MNT/sdcard/OPXDemon still mounted; left in place"
     else
-        rm -rf "$MNT/sdcard/Stryker"
-        echo "[+] Umounted and cleared $MNT/sdcard/Stryker"
+        rm -rf "$MNT/sdcard/OPXDemon"
+        echo "[+] Umounted and cleared $MNT/sdcard/OPXDemon"
     fi
 }
 

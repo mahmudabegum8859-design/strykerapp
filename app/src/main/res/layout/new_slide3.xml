@@ -32,7 +32,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="14dp"
-            android:text="Pulls and unpacks the Debian-based tooling chroot Stryker runs on."
+            android:text="Pulls and unpacks the Debian-based tooling chroot OPXDemon runs on."
             android:textColor="@color/grey"
             android:textSize="13sp" />
 
@@ -78,7 +78,7 @@
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             android:src="@drawable/download"
-                            app:tint="@color/stryker_accent" />
+                            app:tint="@color/opxdemon_accent" />
                     </FrameLayout>
 
                     <LinearLayout
@@ -92,7 +92,7 @@
                             android:id="@+id/status_title"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Stryker chroot"
+                            android:text="OPXDemon chroot"
                             android:textColor="?android:attr/textColorPrimary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -146,7 +146,7 @@
             android:letterSpacing="0.08"
             android:text="STAGES"
             android:textAllCaps="true"
-            android:textColor="@color/stryker_accent"
+            android:textColor="@color/opxdemon_accent"
             android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone" />

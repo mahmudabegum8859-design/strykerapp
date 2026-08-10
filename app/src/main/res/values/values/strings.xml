@@ -1,9 +1,14 @@
 <resources>
-    <string name="app_name">StrykerOSS</string>
+    <string name="app_name">OPXdemon</string>
+    <string name="tour_banner_text">TOUR MODE — view only. Nothing is installed, downloaded or executed.</string>
+    <string name="tour_status">Tour mode</string>
+    <string name="tour_final_title">Tour mode ready</string>
+    <string name="tour_final_sub">Every feature is explorable — no files are installed, downloaded or extracted.</string>
+    <string name="tour_final_shell">Open any screen from the dashboard to browse it</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title" translatable="false">StrykerOSS</string>
-    <string name="nav_header_subtitle" translatable="false">StrykerOSS</string>
+    <string name="nav_header_title" translatable="false">OPXdemon</string>
+    <string name="nav_header_subtitle" translatable="false">OPXdemon</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 

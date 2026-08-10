@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-StrykerOSS is licensed under the **GNU General Public License v3.0** (see [`LICENSE`](LICENSE)).
+OPXdemon is licensed under the **GNU General Public License v3.0** (see [`LICENSE`](LICENSE)).
 It incorporates and/or bundles the third-party components listed below. Each component
 remains under its own license; only the combined work is distributed under the GPLv3.
 All listed licenses are GPLv3-compatible. The in-app *About → Open-source licenses*
@@ -16,7 +16,7 @@ screen carries the runtime attribution list.
 | Component | Origin | License | Notes |
 |---|---|---|---|
 | Terminal emulator (`terminal/`) | [NeoTerm](https://github.com/NeoTerm/NeoTerm) (© imkiva) built on [Termux](https://termux.com) terminal-emulator (© 2016–2017 Fredrik Fornwall) | **GPL-3.0** | Strong-copyleft core; the reason the combined work is GPLv3. |
-| `NeoTermBridge/` | NeoTerm remote-execute bridge (© imkiva) | **GPL-3.0** | Package renamed `io.neoterm.bridge` → `com.stryker.terminal.bridge`. |
+| `NeoTermBridge/` | NeoTerm remote-execute bridge (© imkiva) | **GPL-3.0** | Package renamed `io.neoterm.bridge` → `com.opxdemon.terminal.bridge`. |
 | `NeoLang/` | NeoLang config language (NeoTerm / Kiva) | **Apache-2.0** | Compatible one-way into GPLv3. |
 | `Xorg/` | [libsdl-android / XServer XSDL](https://sourceforge.net/projects/libsdl-android/) (© 2009–2014 Sergii Pylypenko) | **zlib** | `GLSurfaceView_SDL.java` © 2008 The Android Open Source Project — **Apache-2.0**. |
 | `chrome-tabs/` | [ChromeLikeTabSwitcher](https://github.com/michael-rapp/ChromeLikeTabSwitcher) (© 2016–2017 Michael Rapp) + android-util | **Apache-2.0** | |
@@ -39,13 +39,13 @@ their licenses in the in-app *About → Open-source licenses* screen.
 ## Guest-core payload (`assets/rootless/stryker-guest-core.tar`)
 
 Unpacked into the Linux environment at first boot. Each tool runs as a separate program
-inside the guest and is aggregated with, not linked into, Stryker.
+inside the guest and is aggregated with, not linked into, OPXDemon.
 
 | Path in tar | Origin | License |
 |---|---|---|
 | `CORE/SMB/mysmb.py`, `CORE/RDP/mysmb.py`, `exploits/mysmb.py` | derived from [impacket](https://github.com/fortra/impacket) (© SecureAuth / Fortra) | **Apache-2.0** |
 | `CORE/Cameradar/credentials.json`, `CORE/Cameradar/routes` | [Ullaakut/cameradar](https://github.com/Ullaakut/cameradar) RTSP route and credential dictionaries | **MIT** |
-| `CORE/PixieWps/pixie.py` | derived from OneShotPin 0.0.2 (© 2017 rofl0r, modified by drygdryg / kimocoder), with ideas from [OneShot-Extended](https://github.com/chkndrp/OneShot-Extended); substantially rewritten for Stryker | **GPL-3.0** |
+| `CORE/PixieWps/pixie.py` | derived from OneShotPin 0.0.2 (© 2017 rofl0r, modified by drygdryg / kimocoder), with ideas from [OneShot-Extended](https://github.com/chkndrp/OneShot-Extended); substantially rewritten for OPXDemon | **GPL-3.0** |
 
 Corresponding source and the full license text of each are available from the upstream
 projects linked above and on request.
