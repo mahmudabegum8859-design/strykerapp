@@ -8,10 +8,10 @@ public final class OPXDemonEndpoints {
             "https://raw.githubusercontent.com/mahmudabegum8859-design/strykerapp/main/opxdemon_manifest.json";
 
     public static final String FALLBACK_CHROOT_64 =
-            "https://github.com/zalexdev/strykerapp/releases/download/chroot-main/chroot64-debian.tar.gz";
+            "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/chroot64-debian.tar.gz";
 
     private static final String ROOTLESS_BASE =
-            "https://github.com/zalexdev/strykerapp/releases/download/rootless-main/";
+            "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/";
     public static final String FALLBACK_ROOTLESS_QEMU     = ROOTLESS_BASE + "qemu-system-aarch64";
     public static final String FALLBACK_ROOTLESS_KERNEL   = ROOTLESS_BASE + "Image";
     public static final String FALLBACK_ROOTLESS_LIBSLIRP = ROOTLESS_BASE + "libslirp.so";
