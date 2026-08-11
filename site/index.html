@@ -349,6 +349,21 @@
   .dl-files .files-list { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
   .file-chip { font-family: var(--font-mono); font-size: .72rem; color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--card-border); padding: 5px 12px; border-radius: 999px; }
 
+  /* Payload status table: which files are Tested vs Not tested
+     পেলোড স্ট্যাটাস টেবিল: কোন ফাইল টেস্টেড আর কোনটা নয় */
+  .pfile { margin-top: 14px; border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; }
+  .pfile-group { background: rgba(255,255,255,.03); padding: 10px 14px; font-family: var(--font-mono); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-2); border-bottom: 1px solid var(--card-border); }
+  .pfile table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  .pfile th, .pfile td { text-align: left; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .pfile tr:last-child td { border-bottom: 0; }
+  .pfile th { color: var(--muted-2); font-weight: 600; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+  .pfile td.name { font-family: var(--font-mono); color: var(--text); word-break: break-all; }
+  .pfile td.arch { color: var(--muted); white-space: nowrap; }
+  .pfile-status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: .7rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pfile-status.ok { color: var(--green); background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); }
+  .pfile-status.exp { color: var(--amber); background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.3); }
+  @media (max-width: 560px) { .pfile td.arch { display: none; } }
+
   /* ---------- changelog ---------- */
   .changelog { display: grid; gap: 14px; }
   .cl-latest { border: 1px solid rgba(34,211,238,.35); background: linear-gradient(160deg, rgba(34,211,238,.08), rgba(129,140,248,.06)), var(--card); }
@@ -542,27 +557,33 @@
       <div class="sec-head reveal">
         <span class="sec-eyebrow">Architecture support</span>
         <h2>Built for <span class="grad">every phone</span></h2>
-        <p>Payloads for each guest architecture live on the <code style="color:var(--accent)">core-files</code> release — the app auto-selects the right set. arm64 is fully tested; the others are boot-verified under QEMU and marked experimental.</p>
+        <p>Payloads for each architecture live on the <code style="color:var(--accent)">core-files</code> release. <b>Rooted mode</b> mounts a Debian chroot matching the device ABI; <b>Rootless mode</b> boots a QEMU guest of the chosen architecture. arm64 is fully tested; armhf / i386 / amd64 are boot-verified under QEMU but not yet device-tested.</p>
+      </div>
+      <!-- Legend: explains the Tested vs Not-tested badges used below
+           লেজেন্ড: নিচের টেস্টেড / নট-টেস্টেড ব্যাজের অর্থ -->
+      <div class="sec-head" style="margin-bottom:26px">
+        <p><span class="arch-badge ok" style="margin-right:10px">✓ Tested — verified on real hardware</span>
+        <span class="arch-badge exp">⚠ Not device-tested — QEMU boot-verified only</span></p>
       </div>
       <div class="grid-4">
         <div class="card arch-card reveal">
           <div class="arch-name">arm64</div>
-          <div class="arch-desc">Tested engine · every modern phone</div>
+          <div class="arch-desc">Rooted chroot ✓ · Rootless VM ✓</div>
           <span class="arch-badge ok">✓ Tested</span>
         </div>
         <div class="card arch-card reveal">
           <div class="arch-name">armhf</div>
-          <div class="arch-desc">32-bit ARM · QEMU boot-verified</div>
+          <div class="arch-desc">Rooted chroot ✓ · Rootless VM ✓</div>
           <span class="arch-badge exp">⚠ Not device-tested</span>
         </div>
         <div class="card arch-card reveal">
           <div class="arch-name">i386</div>
-          <div class="arch-desc">32-bit x86 · QEMU boot-verified</div>
+          <div class="arch-desc">Rooted chroot ✓ · Rootless VM ✓</div>
           <span class="arch-badge exp">⚠ Not device-tested</span>
         </div>
         <div class="card arch-card reveal">
           <div class="arch-name">amd64</div>
-          <div class="arch-desc">64-bit x86 · QEMU boot-verified</div>
+          <div class="arch-desc">Rooted chroot ✓ · Rootless VM ✓</div>
           <span class="arch-badge exp">⚠ Not device-tested</span>
         </div>
       </div>
@@ -589,7 +610,9 @@
           <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp/releases" target="_blank" rel="noopener">All releases ↗</a>
         </div>
 
-        <!-- Version picker: defaults to the latest release; the user may pick an older build manually -->
+        <!-- Version picker: defaults to the latest release; the user may pick an older build manually
+             ড্রপডাউন মেনু: ইউজার কিছু না বাছলে সবসময় নতুন ভার্সন ডাউনলোড হবে;
+             চাইলে ইউজার নিজে পুরোনো যেকোনো ভার্সনও বেছে নিতে পারে। -->
         <div class="ver-select" id="verSelectWrap">
           <label for="versionSelect">Choose a version</label>
           <div class="ver-select-row">
@@ -601,14 +624,44 @@
         </div>
 
         <details class="dl-files">
-          <summary>All payload files (26) — rooted + rootless, every architecture</summary>
-          <div class="files-list">
-            <span class="file-chip">qemu-system-aarch64</span><span class="file-chip">Image</span><span class="file-chip">initrd.img</span><span class="file-chip">libslirp.so</span><span class="file-chip">rootfs.imgz</span><span class="file-chip">chroot64-debian.tar.gz</span>
-            <span class="file-chip">qemu-system-arm</span><span class="file-chip">Image-arm</span><span class="file-chip">initrd-arm.img</span><span class="file-chip">rootfs-arm.imgz</span><span class="file-chip">chroot64-debian-armhf.tar.gz</span>
-            <span class="file-chip">qemu-system-i386</span><span class="file-chip">Image-i386</span><span class="file-chip">initrd-i386.img</span><span class="file-chip">rootfs-i386.imgz</span><span class="file-chip">chroot64-debian-i386.tar.gz</span>
-            <span class="file-chip">qemu-system-x86_64</span><span class="file-chip">Image-amd64</span><span class="file-chip">initrd-amd64.img</span><span class="file-chip">rootfs-amd64.imgz</span><span class="file-chip">chroot64-debian-amd64.tar.gz</span>
-            <span class="file-chip">OPXdemon APK</span>
+          <summary>All payload files (26) — Tested vs Not tested, grouped by mode</summary>
+
+          <!-- Payload status table. Files are live on the core-files release.
+               Status = "✓ Tested" (verified on real hardware) or
+               "⚠ Not device-tested" (boot-verified under QEMU only).
+               পেলোড টেবিল: core-files রিলিজের সব ফাইল। arm64 = টেস্টেড,
+               বাকি আর্কিটেকচারগুলো শুধু QEMU-তে বুট-ভেরিফাইড, ডিভাইসে টেস্ট হয়নি। -->
+
+          <!-- ROOTED MODE: Debian chroot per ABI (all 4 architectures served) -->
+          <div class="pfile">
+            <div class="pfile-group">Rooted mode — Debian chroot per architecture</div>
+            <table>
+              <thead><tr><th>File</th><th>Arch</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="name">chroot64-debian.tar.gz</td><td class="arch">arm64</td><td><span class="pfile-status ok">✓ Tested</span></td></tr>
+                <tr><td class="name">chroot64-debian-armhf.tar.gz</td><td class="arch">armhf</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+                <tr><td class="name">chroot64-debian-i386.tar.gz</td><td class="arch">i386</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+                <tr><td class="name">chroot64-debian-amd64.tar.gz</td><td class="arch">amd64</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+                <tr><td class="name">chroot64.tar.gz · chroot32.tar.gz · chroot_v5b_64.tar.gz · 4.0.tar.gz</td><td class="arch">—</td><td><span class="pfile-status ok">✓ Tested</span></td></tr>
+              </tbody>
+            </table>
           </div>
+
+          <!-- ROOTLESS MODE: QEMU VM payloads per guest architecture -->
+          <div class="pfile">
+            <div class="pfile-group">Rootless mode — QEMU VM payloads (per architecture)</div>
+            <table>
+              <thead><tr><th>File</th><th>Arch</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="name">qemu-system-aarch64 · libslirp.so · Image · initrd.img · rootfs.imgz</td><td class="arch">arm64</td><td><span class="pfile-status ok">✓ Tested</span></td></tr>
+                <tr><td class="name">qemu-system-arm · Image-arm · initrd-arm.img · rootfs-arm.imgz</td><td class="arch">armhf</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+                <tr><td class="name">qemu-system-i386 · Image-i386 · initrd-i386.img · rootfs-i386.imgz</td><td class="arch">i386</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+                <tr><td class="name">qemu-system-x86_64 · Image-amd64 · initrd-amd64.img · rootfs-amd64.imgz</td><td class="arch">amd64</td><td><span class="pfile-status exp">⚠ Not device-tested</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="ver-note" style="margin-top:10px">APK: <span style="font-family:var(--font-mono)">OPXdemon-1.1.apk</span> (✓ Tested) in this release · newest app build is <span style="font-family:var(--font-mono)">v1.3</span>, always served by the download buttons above.</p>
         </details>
         <p class="warn" style="text-align:left">⚠ For authorized security testing only. armhf / i386 / amd64 payloads are experimental — boot-verified in QEMU but not yet device-tested.</p>
       </div>
@@ -827,32 +880,42 @@
   track.innerHTML += track.innerHTML;
 
   /* =====================================================================
-   *  RELEASE / DOWNLOAD SYNC
+   *  RELEASE / DOWNLOAD SYNC  |  রিলিজ / ডাউনলোড সিঙ্ক
    *  --------------------------------------------------------------------
    *  - Fetches the GitHub releases list for the repository.
+   *    (রিপোজিটরির GitHub রিলিজ লিস্ট আনা হয়।)
    *  - The NEWEST release that ships an APK is ALWAYS the default
    *    download — even if the visitor never touches the version menu.
+   *    (যে রিলিজে APK আছে তার মধ্যে সবচেয়ে নতুন ভার্সনটিই সবসময়
+   *    ডিফল্ট হিসেবে ডাউনলোড হবে — ইউজার ড্রপডাউন স্পর্শ না করলেও।)
    *  - Fills the "Choose a version" dropdown with every release that has
    *    an APK, so a visitor can manually pick an older build.
+   *    (ড্রপডাউন মেনুতে সব ভার্সন দেখানো হয়, চাইলে ইউজার পুরোনো
+   *    ভার্সনও আলাদাভাবে বেছে নিতে পারে।)
    *  - Keeps the changelog in sync with the live release data.
    *  Fallback chain: GitHub API -> opxdemon_manifest.json -> local APK.
+   *  (ব্যর্থ হলে: GitHub API -> manifest -> লোকাল APK।)
    * ===================================================================== */
 
   /* All releases that carry an APK, newest first:
-     { url, version, size, date, tag } */
+     { url, version, size, date, tag }
+     APK আছে এমন সব রিলিজ, নতুন আগে। */
   var releaseList = [];
 
-  /* The visitor's manual pick ("" = follow the newest release automatically) */
+  /* The visitor's manual pick ("" = follow the newest release automatically)
+     ইউজারের ম্যানুয়াল পছন্দ ("" মানে অটোমেটিক নতুন ভার্সন ফলো হবে)। */
   var chosenUrl = "";
 
-  /* Human-readable file size: 26214400 -> "25.0 MB" */
+  /* Human-readable file size: 26214400 -> "25.0 MB"
+     ফাইলের সাইজ সুন্দরভাবে দেখানোর জন্য: 26214400 -> "25.0 MB" */
   function fmtSize(bytes) {
     if (!bytes) return "";
     var mb = bytes / 1048576;
     return mb >= 1024 ? (mb / 1024).toFixed(2) + " GB" : mb.toFixed(1) + " MB";
   }
 
-  /* Strip a leading "v": "v1.3" -> "1.3" */
+  /* Strip a leading "v": "v1.3" -> "1.3"
+     "v" দিয়ে শুরু হলে সেটা বাদ দেয়: "v1.3" -> "1.3" */
   function versionFromTag(tag) { return String(tag || "").replace(/^v/, ""); }
 
   /* Tiny safe markdown renderer for release notes (headings, lists, code, links) */
@@ -925,7 +988,9 @@
   }
 
   /* Fill the "Choose a version" dropdown with every release that has an APK.
-     The first option is always "Latest (recommended)". */
+     The first option is always "Latest (recommended)".
+     ড্রপডাউন মেনুতে APK-সহ সব রিলিজ ভরে দেয়। প্রথম অপশন সবসময়
+     "Latest (recommended)" থাকে — ইউজার কিছু না বাছলে নতুন ভার্সনই চলবে। */
   function fillVersionSelect() {
     var sel = document.getElementById("versionSelect");
     var html = '<option value="">Latest (recommended)</option>';
@@ -935,18 +1000,21 @@
         (rel.date ? " · " + new Date(rel.date).toUTCString().slice(0, 11) : "") + '</option>';
     });
     sel.innerHTML = html;
-    sel.value = ""; /* always default to the newest release */
+    sel.value = ""; /* always default to the newest release  // সবসময় নতুন ভার্সন ডিফল্ট থাকে */
   }
 
   /* When the visitor picks a version, point every button at that exact APK.
-     Picking the first option ("Latest") switches back to the newest build. */
+     Picking the first option ("Latest") switches back to the newest build.
+     ইউজার ড্রপডাউন থেকে ভার্সন বাছলে সেই APK-তেই সব বাটন যাবে।
+     আবার "Latest (recommended)" বাছলে নতুন ভার্সনেই ফিরে আসবে। */
   function onVersionChange() {
     var sel = document.getElementById("versionSelect");
     var url = sel.value;
     var note = document.getElementById("verNote");
     chosenUrl = url;
     if (!url) {
-      /* "Latest (recommended)" -> newest release, always up to date */
+      /* "Latest (recommended)" -> newest release, always up to date
+         কিছু বাছা হয়নি — তাই সবসময় সবচেয়ে নতুন ভার্সন। */
       if (releaseList.length) {
         applyDownload(releaseList[0].url, releaseList[0].version, releaseList[0].size, null);
       }
@@ -1005,9 +1073,11 @@
           releaseList.push({ url: apk.browser_download_url, version: ver, size: apk.size, date: rel.published_at, tag: rel.tag_name });
         });
         if (!releaseList.length) throw new Error("no apk releases");
-        /* The newest release is ALWAYS the default download */
+        /* The newest release is ALWAYS the default download.
+           সবচেয়ে নতুন রিলিজটিই সবসময় ডিফল্ট ডাউনলোড। */
         applyDownload(releaseList[0].url, releaseList[0].version, releaseList[0].size, null);
-        /* Populate the manual version picker (default stays "Latest") */
+        /* Populate the manual version picker (default stays "Latest").
+           ড্রপডাউন মেনু ভরা হয়; ডিফল্ট "Latest"-ই থাকে। */
         fillVersionSelect();
         document.getElementById("versionSelect").addEventListener("change", onVersionChange);
         /* Changelog */
