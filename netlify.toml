@@ -1,0 +1,7 @@
+# Netlify build settings for opxdemon.netlify.app
+# The site is a pure static page inside the `site/` folder. The repo-root
+# package.json `build` script is an Android/Gradle build and must NOT run on
+# Netlify — so we override the build command with a no-op and publish `site/`.
+[build]
+  command = "echo 'Static site - no build step required.'"
+  publish = "site"

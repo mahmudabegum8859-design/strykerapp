@@ -84,6 +84,11 @@
 
   :root { --accent:#22d3ee; --accent-2:#818cf8; --accent-3:#e879f9; --green:#34d399; --amber:#fbbf24; }
 
+  /* Match the native UI (select dropdown popup, scrollbars) to the theme so
+     form controls never render light-on-light text. */
+  html.dark { color-scheme: dark; }
+  html:not(.dark) { color-scheme: light; }
+
   ::selection { background: rgba(34,211,238,.35); color:#fff; }
   ::-webkit-scrollbar { width:10px; }
   ::-webkit-scrollbar-track { background:var(--bg,#05060a); }
