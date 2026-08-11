@@ -19,13 +19,13 @@ public final class RootlessEngine {
 
     private static final String TAG = "RootlessEngine";
     private static final int BOOT_TIMEOUT_MS = 150_000;
-    private static final String PROMPT_MARK = "__STRYKER_ID__";
+    private static final String PROMPT_MARK = "__OPXDEMON_ID__";
 
     private static volatile RootlessEngine instance;
 
     private final Context app;
     private final ExecutorService qemuExecutor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "stryker-qemu");
+        Thread t = new Thread(r, "opxdemon-qemu");
         t.setDaemon(true);
         return t;
     });
@@ -166,7 +166,7 @@ public final class RootlessEngine {
             qemuProcess = proc;
             booted = false;
 
-            new Thread(() -> pumpBootLog(proc, listener), "stryker-qemu-log").start();
+            new Thread(() -> pumpBootLog(proc, listener), "opxdemon-qemu-log").start();
 
             long deadline = System.currentTimeMillis() + BOOT_TIMEOUT_MS;
             while (System.currentTimeMillis() < deadline) {
@@ -344,7 +344,7 @@ public final class RootlessEngine {
             if (isAlive(p)) p.destroy();
             sleep(1500);
             if (isAlive(p)) destroyForcibly(p);
-        }, "stryker-qemu-stop").start();
+        }, "opxdemon-qemu-stop").start();
     }
 
     public boolean stopAndWait(long timeoutMs) {
@@ -504,11 +504,11 @@ public final class RootlessEngine {
             }
             GuestExec.run("command -v cpio >/dev/null 2>&1 || "
                     + "(export DEBIAN_FRONTEND=noninteractive; apt-get install -y --no-install-recommends cpio >/dev/null 2>&1); "
-                    + "rm -rf /tmp/stryker-ird; mkdir -p /tmp/stryker-ird; cd /tmp/stryker-ird; "
+                    + "rm -rf /tmp/opxdemon-ird; mkdir -p /tmp/opxdemon-ird; cd /tmp/opxdemon-ird; "
                     + "(cpio -idm < /sdcard/Stryker/.initrd.img || busybox cpio -idm < /sdcard/Stryker/.initrd.img) >/dev/null 2>&1; "
-                    + "if [ -d /tmp/stryker-ird/lib/modules ]; then mkdir -p /lib/modules; "
-                    + "cp -a /tmp/stryker-ird/lib/modules/. /lib/modules/; depmod -a >/dev/null 2>&1; "
-                    + "echo __MODULES_DEPLOYED__; fi; rm -rf /tmp/stryker-ird");
+                    + "if [ -d /tmp/opxdemon-ird/lib/modules ]; then mkdir -p /lib/modules; "
+                    + "cp -a /tmp/opxdemon-ird/lib/modules/. /lib/modules/; depmod -a >/dev/null 2>&1; "
+                    + "echo __MODULES_DEPLOYED__; fi; rm -rf /tmp/opxdemon-ird");
             //noinspection ResultOfMethodCallIgnored
             staged.delete();
             ArrayList<String> res = GuestExec.run(
@@ -567,7 +567,7 @@ public final class RootlessEngine {
 
 
     private static final String CORE_MARKER = "/CORE/PixieWps/pixie.py";
-    private static final String CORE_ASSET = "rootless/stryker-guest-core.tar";
+    private static final String CORE_ASSET = "rootless/opxdemon-guest-core.tar";
 
     public synchronized boolean ensureGuestCore() {
         if (!isReady() && !startBlocking(null)) return false;
@@ -583,7 +583,7 @@ public final class RootlessEngine {
         try {
             java.io.File shareDir = resolveShareDir();
             if (shareDir == null) return false;
-            java.io.File staged = new java.io.File(shareDir, ".stryker-guest-core.tar");
+            java.io.File staged = new java.io.File(shareDir, ".opxdemon-guest-core.tar");
             try (java.io.InputStream in = app.getAssets().open(CORE_ASSET);
                  java.io.OutputStream out = new java.io.FileOutputStream(staged)) {
                 byte[] buf = new byte[1 << 16];
@@ -592,7 +592,7 @@ public final class RootlessEngine {
                 out.flush();
             }
             ArrayList<String> res = GuestExec.run(
-                    "tar xf /sdcard/Stryker/.stryker-guest-core.tar -C / 2>&1; "
+                    "tar xf /sdcard/Stryker/.opxdemon-guest-core.tar -C / 2>&1; "
                     + "chmod 0755 /usr/local/sbin/stryker-ptyd /usr/local/sbin/stryker-agentd 2>/dev/null; "
                     + "[ -f " + CORE_MARKER + " ] && echo __DEPLOYED__ || echo __FAIL__");
             //noinspection ResultOfMethodCallIgnored
@@ -876,7 +876,7 @@ public final class RootlessEngine {
         a.add("-device"); a.add("virtio-serial-pci");
         a.add("-chardev"); a.add("socket,id=term0,path=" + RootlessPaths.termSock(app).getAbsolutePath()
                 + ",server=on,wait=off");
-        a.add("-device"); a.add("virtconsole,chardev=term0,name=org.stryker.term");
+        a.add("-device"); a.add("virtconsole,chardev=term0,name=org.opxdemon.term");
 
         a.add("-display"); a.add("none");
         a.add("-qmp"); a.add("unix:" + RootlessPaths.qmpSock(app).getAbsolutePath() + ",server,nowait");

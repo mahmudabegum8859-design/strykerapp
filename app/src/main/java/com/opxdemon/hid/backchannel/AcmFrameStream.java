@@ -58,7 +58,7 @@ public final class AcmFrameStream implements Closeable {
 
         BufferedInputStream bin = new BufferedInputStream(p.getInputStream(), 256 * 1024);
 
-        Thread t = new Thread(() -> pump(bin, listener), "stryker-frame-rx");
+        Thread t = new Thread(() -> pump(bin, listener), "opxdemon-frame-rx");
         t.setDaemon(true);
         AcmFrameStream s = new AcmFrameStream(p, bin, t);
         t.start();

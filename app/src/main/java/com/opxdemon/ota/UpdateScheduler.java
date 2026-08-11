@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class UpdateScheduler {
 
-    private static final String UNIQUE_WORK = "stryker_update_poll";
+    private static final String UNIQUE_WORK = "opxdemon_update_poll";
 
     private UpdateScheduler() {
     }

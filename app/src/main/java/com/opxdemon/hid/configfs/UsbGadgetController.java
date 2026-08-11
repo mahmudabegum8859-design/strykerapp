@@ -16,7 +16,7 @@ import java.util.Set;
 
 public final class UsbGadgetController {
 
-    public static final String GADGET_NAME = "stryker";
+    public static final String GADGET_NAME = "opxdemon";
     public static final String GADGET_BASE = "/config/usb_gadget/" + GADGET_NAME;
     private static final String VENDOR_GADGET = "/config/usb_gadget/g1";
 
@@ -245,10 +245,10 @@ public final class UsbGadgetController {
         for (String c : commands) {
             sb.append(c).append('\n');
         }
-        sb.append("echo __STRYKER_OK__\n");
+        sb.append("echo __OPXDEMON_OK__\n");
         List<String> out = core.customCommand(sb.toString(), true);
         for (String line : out) {
-            if (line != null && line.contains("__STRYKER_OK__")) return true;
+            if (line != null && line.contains("__OPXDEMON_OK__")) return true;
         }
         return false;
     }

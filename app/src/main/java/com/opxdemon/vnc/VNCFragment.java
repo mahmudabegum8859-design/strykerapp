@@ -282,14 +282,14 @@ public class VNCFragment extends Fragment {
 
     /** The VM only sees the 9p share, so the scripts have to travel through it. */
     private boolean stageForGuest() {
-        java.io.File staging = new java.io.File(core.getShareRoot(), ".stryker-vnc");
+        java.io.File staging = new java.io.File(core.getShareRoot(), ".opxdemon-vnc");
         //noinspection ResultOfMethodCallIgnored
         staging.mkdirs();
         if (!stageAsset("install_xfce.sh", new java.io.File(staging, "install.sh"))) return false;
         if (!stageAsset("uninstall_xfce.sh", new java.io.File(staging, "uninstall.sh"))) return false;
         core.customChrootCommand("mkdir -p " + VNC_DIR + "; "
-                + "cp -f /sdcard/Stryker/.stryker-vnc/install.sh " + VNC_DIR + "/install.sh; "
-                + "cp -f /sdcard/Stryker/.stryker-vnc/uninstall.sh " + VNC_DIR + "/uninstall.sh; "
+                + "cp -f /sdcard/Stryker/.opxdemon-vnc/install.sh " + VNC_DIR + "/install.sh; "
+                + "cp -f /sdcard/Stryker/.opxdemon-vnc/uninstall.sh " + VNC_DIR + "/uninstall.sh; "
                 + "sed -i 's/\r$//' " + VNC_DIR + "/install.sh " + VNC_DIR + "/uninstall.sh; "
                 + "chmod 0755 " + VNC_DIR + "/install.sh " + VNC_DIR + "/uninstall.sh", true);
         return core.guestFileExists(VNC_DIR + "/install.sh");
@@ -301,7 +301,7 @@ public class VNCFragment extends Fragment {
      * install. The app's own files dir is always writable, and root copies from there.
      */
     private boolean stageForChroot() {
-        java.io.File staging = new java.io.File(context.getFilesDir(), ".stryker-vnc");
+        java.io.File staging = new java.io.File(context.getFilesDir(), ".opxdemon-vnc");
         //noinspection ResultOfMethodCallIgnored
         staging.mkdirs();
         if (!stageAsset("install_xfce.sh", new java.io.File(staging, "install.sh"))) return false;
@@ -520,7 +520,7 @@ public class VNCFragment extends Fragment {
                     markCurrentStageFailed();
                     showDialog("Install failed", line);
                 } else if (line.contains("No previous VNC")) {
-                    core.toaster("Default password set to \"stryker\"");
+                    core.toaster("Default password set to \"opxdemon\"");
                 } else if (line.contains("Use the helper scripts")) {
                     showDialog("Install complete", "VNC server installed.");
                 }

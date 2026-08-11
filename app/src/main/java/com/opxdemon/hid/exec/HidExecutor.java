@@ -60,7 +60,7 @@ public final class HidExecutor {
             sink.onFinished(ExecutionResult.ioError("Another script is already running"));
             return;
         }
-        runner = new Thread(() -> doRun(source, keymapCode, sink), "stryker-hid");
+        runner = new Thread(() -> doRun(source, keymapCode, sink), "opxdemon-hid");
         runner.start();
     }
 

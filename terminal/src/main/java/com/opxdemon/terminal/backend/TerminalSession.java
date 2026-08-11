@@ -132,7 +132,7 @@ public class TerminalSession extends TerminalOutput {
 
   /**
    * The rootless VM runs its own PTY behind a socket, so the local TIOCSWINSZ above never reaches
-   * it. stryker-ch drops a marker while it is attached to the guest's resizable PTY server; only
+   * it. opxdemon-ch drops a marker while it is attached to the guest's resizable PTY server; only
    * then is it safe to send the out-of-band frame, which that server consumes.
    */
   private void pushVmWindowSize(int columns, int rows) {

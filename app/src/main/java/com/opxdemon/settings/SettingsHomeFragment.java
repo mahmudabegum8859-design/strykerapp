@@ -288,7 +288,7 @@ public class SettingsHomeFragment extends Fragment {
             });
             if (!mounted) return;
 
-            core.customCommand("rm -rf /data/local/stryker");
+            core.customCommand("rm -rf /data/local/opxdemon");
             ui(() -> {
                 setStep(s2, i2, l2, STEP_DONE);
                 setStep(s3, i3, l3, STEP_ACTIVE);
@@ -301,7 +301,7 @@ public class SettingsHomeFragment extends Fragment {
                 bar.setVisibility(View.GONE);
                 close.setVisibility(View.VISIBLE);
             });
-        }, "stryker-self-destruct").start();
+        }, "opxdemon-self-destruct").start();
     }
 
     private void setStep(ProgressBar spin, ImageView icon, TextView label, int state) {

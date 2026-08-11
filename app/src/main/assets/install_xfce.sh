@@ -32,7 +32,7 @@ apt-get install -y --no-install-recommends ca-certificates curl openssl xvfb \
     libgl1-mesa-dri libgl1 x11-xserver-utils x11-xkb-utils xinit procps || error
 
 echo "×Preparing the VNC password"
-PASS=stryker
+PASS=opxdemon
 
 [ ! -f /root/.vnc/passwd ] && echo "No previous VNC password found. Setting $PASS as default password!" && mkdir -p /root/.vnc && x11vnc -storepasswd $PASS /root/.vnc/passwd || echo "Previously generated password found. Keeping your old password!"
 

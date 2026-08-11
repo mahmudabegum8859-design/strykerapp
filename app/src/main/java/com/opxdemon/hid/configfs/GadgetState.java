@@ -6,19 +6,19 @@ import java.util.Set;
 
 public final class GadgetState {
 
-    public final boolean strykerGadgetExists;
-    public final boolean strykerGadgetBound;
+    public final boolean opxdemonGadgetExists;
+    public final boolean opxdemonGadgetBound;
     public final String boundUdc;
     public final Set<GadgetFunction> linkedFunctions;
     public final String massStorageFile;
 
-    public GadgetState(boolean strykerGadgetExists,
-                       boolean strykerGadgetBound,
+    public GadgetState(boolean opxdemonGadgetExists,
+                       boolean opxdemonGadgetBound,
                        String boundUdc,
                        Set<GadgetFunction> linkedFunctions,
                        String massStorageFile) {
-        this.strykerGadgetExists = strykerGadgetExists;
-        this.strykerGadgetBound = strykerGadgetBound;
+        this.opxdemonGadgetExists = opxdemonGadgetExists;
+        this.opxdemonGadgetBound = opxdemonGadgetBound;
         this.boundUdc = boundUdc;
         this.linkedFunctions = linkedFunctions == null
                 ? Collections.unmodifiableSet(EnumSet.noneOf(GadgetFunction.class))

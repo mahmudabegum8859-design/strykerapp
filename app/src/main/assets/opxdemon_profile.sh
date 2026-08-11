@@ -1,6 +1,6 @@
 # OPXDemon chroot shell environment.
 #
-# Deployed into the chroot at /etc/stryker_profile.sh and sourced from
+# Deployed into the chroot at /etc/opxdemon_profile.sh and sourced from
 # /etc/profile, so every interactive login shell the terminal opens (it enters
 # via `bash -l`) gets a cool, root-aware, blue two-line prompt instead of the
 # bland default. Also adds a few quality-of-life aliases.
@@ -48,9 +48,9 @@ alias egrep='egrep --color=auto'
 alias ports='netstat -tulpn 2>/dev/null || ss -tulpn'
 
 # One tasteful banner per interactive login shell.
-if [ -z "$__STRYKER_GREETED" ]; then
-    __STRYKER_GREETED=1
-    printf '\033[1;38;5;39m⚡ STRYKER\033[0m \033[2m- pentest shell\033[0m\n'
+if [ -z "$__OPXDEMON_GREETED" ]; then
+    __OPXDEMON_GREETED=1
+    printf '\033[1;38;5;39m⚡ OPXDEMON\033[0m \033[2m- pentest shell\033[0m\n'
 fi
 
 unset __s_rail __s_path __s_dim __s_rst __s_brand __s_tip

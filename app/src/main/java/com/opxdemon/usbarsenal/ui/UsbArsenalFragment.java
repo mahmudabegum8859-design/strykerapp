@@ -107,7 +107,7 @@ public class UsbArsenalFragment extends Fragment implements GadgetProfileAdapter
             statePill.setText("BLOCK");
             statePill.setBackgroundResource(R.drawable.chip_pill_err);
             statePill.setTextColor(0xFFC62828);
-        } else if (state.strykerGadgetBound) {
+        } else if (state.opxdemonGadgetBound) {
             stateText.setText(getString(R.string.arsenal_state_bound, state.boundUdc));
             statePill.setText("BOUND");
             statePill.setBackgroundResource(R.drawable.chip_pill_ok);
@@ -126,7 +126,7 @@ public class UsbArsenalFragment extends Fragment implements GadgetProfileAdapter
         StringBuilder detail = new StringBuilder();
         detail.append("udc=").append(caps.udcName == null ? "—" : caps.udcName)
                 .append(" · configfs=").append(caps.configFsMounted ? "✓" : "✗")
-                .append(" · stryker_gadget=").append(state.strykerGadgetExists ? "✓" : "✗");
+                .append(" · opxdemon_gadget=").append(state.opxdemonGadgetExists ? "✓" : "✗");
         if (!state.linkedFunctions.isEmpty()) {
             detail.append('\n').append("functions=");
             Iterator<GadgetFunction> it = state.linkedFunctions.iterator();

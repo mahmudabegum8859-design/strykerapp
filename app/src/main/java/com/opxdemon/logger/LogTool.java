@@ -173,7 +173,7 @@ public final class LogTool {
                 case "env":
                 case "chroot_exec":
                 case "bash_exec":
-                case "stryker-ch":
+                case "opxdemon-ch":
                     continue;
                 default:
                     return low;

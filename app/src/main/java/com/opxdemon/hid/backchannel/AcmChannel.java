@@ -77,7 +77,7 @@ public final class AcmChannel implements Closeable {
         wIn.flush();
 
         AcmChannel[] holder = new AcmChannel[1];
-        Thread t = new Thread(() -> pump(rp, listener, holder), "stryker-acm-rx");
+        Thread t = new Thread(() -> pump(rp, listener, holder), "opxdemon-acm-rx");
         t.setDaemon(true);
         AcmChannel ch = new AcmChannel(nodePath, rp, wp, wIn, t);
         holder[0] = ch;

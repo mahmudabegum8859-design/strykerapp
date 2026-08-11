@@ -20,7 +20,7 @@ import java.util.Locale;
 
 public final class GadgetProfileDb {
 
-    private static final String DB_NAME = "stryker_arsenal.db";
+    private static final String DB_NAME = "opxdemon_arsenal.db";
     private static final int DB_VERSION = 1;
     private static final String TABLE = "gadget_profile";
 

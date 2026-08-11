@@ -107,7 +107,7 @@ public class Slide2 extends Fragment {
                     core.customCommand("dumpsys deviceidle whitelist +com.opxdemon", true);
                 }
 
-                core.putString("vnc_passwd", "stryker");
+                core.putString("vnc_passwd", "opxdemon");
                 if (rooted) {
                     ArrayList<String> interfaces = core.getInterfacesList();
                     if (interfaces.contains("swlan0")) {
@@ -145,7 +145,7 @@ public class Slide2 extends Fragment {
                 uiSafe(() -> {
                     refreshStatuses();
                     if (rooted) {
-                        boolean alreadyInstalled = core.checkFolder("/data/local/stryker/release/sdcard/Stryker")
+                        boolean alreadyInstalled = core.checkFolder("/data/local/opxdemon/release/sdcard/Stryker")
                                 && core.checkFile(Core.CHROOT_MARKER);
                         if (alreadyInstalled) {
                             ((AppIntroActivity) activity).jumpToLast();

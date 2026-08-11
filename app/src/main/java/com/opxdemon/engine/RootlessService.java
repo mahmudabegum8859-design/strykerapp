@@ -16,7 +16,7 @@ import com.opxdemon.R;
 
 public class RootlessService extends Service {
 
-    private static final String CHANNEL_ID = "stryker_rootless";
+    private static final String CHANNEL_ID = "opxdemon_rootless";
     private static final int NOTIF_ID = 71;
 
     public static void start(Context context) {
@@ -66,7 +66,7 @@ public class RootlessService extends Service {
         final RootlessEngine engine = RootlessEngine.get(getApplicationContext());
         new Thread(() -> {
             try { engine.stop(); } catch (Throwable ignored) {}
-        }, "stryker-vm-service-stop").start();
+        }, "opxdemon-vm-service-stop").start();
         super.onDestroy();
     }
 

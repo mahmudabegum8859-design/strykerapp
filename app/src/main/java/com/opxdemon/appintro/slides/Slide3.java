@@ -165,7 +165,7 @@ public class Slide3 extends Fragment {
                 runOnUi(() -> downloadBlock.setVisibility(View.GONE));
 
                 markStage(InstallStage.UNPACKING, RowState.ACTIVE);
-                log(LogLevel.STEP, "Extracting archive into /data/local/stryker");
+                log(LogLevel.STEP, "Extracting archive into /data/local/opxdemon");
                 log(LogLevel.INFO, "Full Debian rootfs — extraction can take several minutes");
                 runOnUi(() -> progress.setIndeterminate(true));
 
@@ -199,8 +199,8 @@ public class Slide3 extends Fragment {
                     }
                     core.deleteFile("/sdcard/Stryker/exploits/");
                     core.copyFile("/data/data/com.opxdemon/files/checker.py",
-                            "/data/local/stryker/release/exploits/checker.py");
-                    core.copyFile("/data/local/stryker/release/exploits/", "/sdcard/Stryker/exploits");
+                            "/data/local/opxdemon/release/exploits/checker.py");
+                    core.copyFile("/data/local/opxdemon/release/exploits/", "/sdcard/Stryker/exploits");
                     core.chmodFolder("/data/data/com.opxdemon/files");
                     markStage(InstallStage.DEPLOYING_EXPLOITS, RowState.DONE);
                     log(LogLevel.SUCCESS, "Exploits deployed to /sdcard/Stryker/exploits");
@@ -343,7 +343,7 @@ public class Slide3 extends Fragment {
     private void clear() {
         core.chmodFolder("/data/data/com.opxdemon/files/");
         core.createFolder(core.getStorage() + "/OPXDemon/");
-        core.createFolder("/data/local/stryker");
+        core.createFolder("/data/local/opxdemon");
         if (core.isMounted() || core.checkFolder(Core.CHROOT_ROOT + "/bin")) {
             log(LogLevel.STEP, "Removing the previous Linux system");
             if (!core.purgeChroot()) {
@@ -362,7 +362,7 @@ public class Slide3 extends Fragment {
         core.createFolder(core.getStorage() + "OPXDemon/rs");
     }
 
-    private static final String TAR_RC = "__STRYKER_TAR_RC__";
+    private static final String TAR_RC = "__OPXDEMON_TAR_RC__";
 
     private volatile String extractFailure;
 
@@ -377,9 +377,9 @@ public class Slide3 extends Fragment {
             extractFailure = "no usable tar — busybox could not run and the system provides none";
             return false;
         }
-        log(LogLevel.CMD, tar + " -xzf " + DOWNLOADED_CHROOT_PATH + " -C /data/local/stryker/");
+        log(LogLevel.CMD, tar + " -xzf " + DOWNLOADED_CHROOT_PATH + " -C /data/local/opxdemon/");
         ArrayList<String> out = core.customCommand(
-                tar + " -xzf " + DOWNLOADED_CHROOT_PATH + " -C /data/local/stryker/ 2>&1"
+                tar + " -xzf " + DOWNLOADED_CHROOT_PATH + " -C /data/local/opxdemon/ 2>&1"
                         + "; echo " + TAR_RC + "$?", 0);
 
         Integer rc = null;

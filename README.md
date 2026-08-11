@@ -124,10 +124,15 @@ produce an APK.
 
 ## Notes on preserved paths
 
-The low-level runtime paths `/data/local/stryker` (chroot mount) and `/sdcard/Stryker`
-(captures/wordlists/payloads) are **kept unchanged**: they are baked into the prebuilt
-`chroot-main` / `rootless-main` payloads this app downloads. Rebranding them requires rebuilt
-payloads and is not user-visible.
+The chroot now mounts at `/data/local/opxdemon` (host side). Two low-level names are kept
+as-is because they are baked into the prebuilt payloads this app downloads:
+
+- `/sdcard/Stryker` — the path the chroot/VM guest uses for captures, wordlists and payloads.
+  On the host it is backed by the visible `/sdcard/OPXDemon` folder (bound in by `bootroot`),
+  so nothing user-facing shows the old name.
+- Guest-side binaries `stryker-agentd` / `stryker-ptyd` inside the downloaded rootfs.
+
+Rebranding those requires rebuilt payloads and is not user-visible.
 
 ---
 

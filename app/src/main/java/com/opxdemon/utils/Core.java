@@ -94,7 +94,7 @@ public class Core {
     public final static String EXECUTE = "/data/data/com.opxdemon/files/chroot_exec ";
     public final static String BUSYBOX = "/data/data/com.opxdemon/files/busybox ";
     public final static String SHELL = "bash";
-    public final static String CHROOT_ROOT = "/data/local/stryker/release";
+    public final static String CHROOT_ROOT = "/data/local/opxdemon/release";
 
     /** Marker written after a successful chroot install. The name IS the rootfs generation:
      *  "4.0" is the old Alpine tree, "6.0" the Debian one. */
@@ -715,11 +715,11 @@ public class Core {
 
     public Boolean unmountCore(){
         customMegaCommand("/data/data/com.opxdemon/files/killroot");
-        return !checkFolder("/data/local/stryker/release/sdcard/Stryker");
+        return !checkFolder("/data/local/opxdemon/release/sdcard/Stryker");
     }
     public Boolean isMounted(){
         if (isTour()) return false;
-        return isChrootMounted("/data/local/stryker/release");
+        return isChrootMounted("/data/local/opxdemon/release");
     }
     private boolean isChrootMounted(String root){
         boolean proc = false, sys = false, dev = false, sdcard = false;
@@ -732,7 +732,7 @@ public class Core {
         return proc && sys && dev && sdcard;
     }
     public boolean isOldMounted(){
-        return checkFolder("/data/local/stryker/beta/sdcard/Stryker");
+        return checkFolder("/data/local/opxdemon/beta/sdcard/Stryker");
     }
     public boolean ping(String ip, int port,int timeout) {
         try {
@@ -865,7 +865,7 @@ public class Core {
     }
 
 
-    private static final String RC_MARK = "__STRYKER_RC__";
+    private static final String RC_MARK = "__OPXDEMON_RC__";
     private static final long IDLE_LIMIT_MS = 10 * 60 * 1000L;
 
     private ArrayList<String> pumpProcess(Process process, String script, boolean log, String tool,
@@ -888,7 +888,7 @@ public class Core {
                 }
             } catch (IOException ignored) {
             }
-        }, "stryker-su-stderr");
+        }, "opxdemon-su-stderr");
         errReader.setDaemon(true);
         errReader.start();
         final long[] lastActivity = {android.os.SystemClock.elapsedRealtime()};
@@ -904,7 +904,7 @@ public class Core {
                     return;
                 }
             }
-        }, "stryker-su-watchdog");
+        }, "opxdemon-su-watchdog");
         watchdog.setDaemon(true);
         if (idleLimitMs > 0) watchdog.start();
         boolean sawMark = false;

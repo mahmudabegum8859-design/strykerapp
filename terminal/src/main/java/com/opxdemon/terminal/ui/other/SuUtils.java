@@ -16,7 +16,7 @@ public class SuUtils {
 
     private static final String EXECUTE = NeoTermPath.ROOT_PATH + "/chroot_exec ";
     private static final String ROOTLESS_MARKER = NeoTermPath.ROOT_PATH + "/rootless/.active";
-    private static final String GUEST_SENTINEL = "__STRYKER_EXIT__";
+    private static final String GUEST_SENTINEL = "__OPXDEMON_EXIT__";
     private static final int GUEST_PORT = 1050;
 
     public static boolean isRootless(){

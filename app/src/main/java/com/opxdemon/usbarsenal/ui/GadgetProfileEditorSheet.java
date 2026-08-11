@@ -135,7 +135,7 @@ public final class GadgetProfileEditorSheet {
             pid.setText("0xc31c");
             mfg.setText("Logitech");
             prod.setText("USB Keyboard");
-            serial.setText("STRYKER000");
+            serial.setText("OPXDEMON000");
             chipKbd.setChecked(true);
         }
 
@@ -183,7 +183,7 @@ public final class GadgetProfileEditorSheet {
                     vidVal, pidVal,
                     textOf(mfg).isEmpty() ? "OPXDemon" : textOf(mfg),
                     textOf(prod).isEmpty() ? "Composite" : textOf(prod),
-                    textOf(serial).isEmpty() ? "STRYKER" : textOf(serial),
+                    textOf(serial).isEmpty() ? "OPXDEMON" : textOf(serial),
                     "OPXDemon Gadget",
                     chipMass.isChecked() ? massImagePath : null,
                     ro.isChecked(),

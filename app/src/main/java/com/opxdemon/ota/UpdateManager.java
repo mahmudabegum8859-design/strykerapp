@@ -24,7 +24,7 @@ import java.io.File;
 public final class UpdateManager {
 
     private static final String KEY_SKIP = "ota_skip_version";
-    private static final String APK_NAME = "stryker-update.apk";
+    private static final String APK_NAME = "opxdemon-update.apk";
 
     private UpdateManager() {
     }

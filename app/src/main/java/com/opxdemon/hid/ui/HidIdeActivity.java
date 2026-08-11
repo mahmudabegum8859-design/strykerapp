@@ -55,9 +55,9 @@ import java.util.Map;
 
 public class HidIdeActivity extends AppCompatActivity implements LiveSyntaxValidator.Listener {
 
-    public static final String EXTRA_NAME = "stryker.hid.ide.name";
-    public static final String EXTRA_BODY = "stryker.hid.ide.body";
-    public static final String EXTRA_REQUEST_ARSENAL = "stryker.hid.ide.request_arsenal";
+    public static final String EXTRA_NAME = "opxdemon.hid.ide.name";
+    public static final String EXTRA_BODY = "opxdemon.hid.ide.body";
+    public static final String EXTRA_REQUEST_ARSENAL = "opxdemon.hid.ide.request_arsenal";
 
     private static final String PREF_LAYOUT = "hid_layout";
 
@@ -702,7 +702,7 @@ public class HidIdeActivity extends AppCompatActivity implements LiveSyntaxValid
         }
         pendingExportBody = body;
         String base = stripExtension(currentFileName);
-        if (base.isEmpty()) base = "stryker_" + System.currentTimeMillis();
+        if (base.isEmpty()) base = "opxdemon_" + System.currentTimeMillis();
         exportLauncher.launch(base + ".ducky");
     }
 

@@ -64,7 +64,7 @@ public class NucleiScanService extends Service {
     private PowerManager.WakeLock wakeLock;
     private ExecutorService executor;
 
-    private static final String TEMPLATES_MARKER = "__STRYKER_NUCLEI_TEMPLATES__";
+    private static final String TEMPLATES_MARKER = "__OPXDEMON_NUCLEI_TEMPLATES__";
 
     private static final Set<Integer> ACTIVE = ConcurrentHashMap.newKeySet();
 
@@ -98,7 +98,7 @@ public class NucleiScanService extends Service {
         });
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "stryker:nuclei");
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "opxdemon:nuclei");
         wakeLock.setReferenceCounted(false);
     }
 

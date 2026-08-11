@@ -55,7 +55,7 @@ public class LoggerFragment extends Fragment {
     private static final long COUNT_RESYNC_MS = 1500L;
 
     @SuppressLint("SdCardPath")
-    private static final String EXPORT_NAME = "stryker.log";
+    private static final String EXPORT_NAME = "opxdemon.log";
 
     private Activity activity;
     private Context context;

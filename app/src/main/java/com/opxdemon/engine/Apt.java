@@ -5,8 +5,8 @@ import java.util.List;
 
 public final class Apt {
 
-    public static final String INSTALLED_MARK = "__STRYKER_PKG_OK__";
-    public static final String MISSING_MARK = "__STRYKER_PKG_NO__";
+    public static final String INSTALLED_MARK = "__OPXDEMON_PKG_OK__";
+    public static final String MISSING_MARK = "__OPXDEMON_PKG_NO__";
 
     private static final String OPTS =
             "-o Dpkg::Options::=--force-confdef "

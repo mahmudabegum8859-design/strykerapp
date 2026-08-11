@@ -22,19 +22,19 @@ public final class DefaultProfiles {
                 0, "HID Keyboard (Windows)", TargetOs.WINDOWS,
                 EnumSet.of(GadgetFunction.HID_KEYBOARD),
                 "0x046d", "0xc31c",
-                "Logitech", "USB Keyboard", "STRYKER001",
+                "Logitech", "USB Keyboard", "OPXDEMON001",
                 "OPXDemon HID", null, false, false, ""));
         out.add(new GadgetProfile(
                 0, "HID Keyboard + Mouse", TargetOs.GENERIC,
                 EnumSet.of(GadgetFunction.HID_KEYBOARD, GadgetFunction.HID_MOUSE),
                 "0x046d", "0xc52b",
-                "Logitech", "Unifying Receiver", "STRYKER002",
+                "Logitech", "Unifying Receiver", "OPXDEMON002",
                 "OPXDemon HID Combo", null, false, false, ""));
         out.add(new GadgetProfile(
                 0, "Mass Storage (Bootable ISO)", TargetOs.GENERIC,
                 EnumSet.of(GadgetFunction.MASS_STORAGE),
                 "0x0951", "0x1666",
-                "Kingston", "DataTraveler", "STRYKER003",
+                "Kingston", "DataTraveler", "OPXDEMON003",
                 "OPXDemon Storage", null, true, true, "OPXDemon  Boot   1.0 "));
         out.add(new GadgetProfile(
                 0, "HID + Mass Storage", TargetOs.WINDOWS,
@@ -42,25 +42,25 @@ public final class DefaultProfiles {
                            GadgetFunction.HID_MOUSE,
                            GadgetFunction.MASS_STORAGE),
                 "0x046d", "0xc52b",
-                "Logitech", "Composite Device", "STRYKER004",
+                "Logitech", "Composite Device", "OPXDEMON004",
                 "OPXDemon Combo", null, false, false, "OPXDemon  Combo  1.0 "));
         out.add(new GadgetProfile(
                 0, "RNDIS Network (Windows)", TargetOs.WINDOWS,
                 EnumSet.of(GadgetFunction.RNDIS),
                 "0x0525", "0xa4a2",
-                "Linux Foundation", "RNDIS Ethernet", "STRYKER005",
+                "Linux Foundation", "RNDIS Ethernet", "OPXDEMON005",
                 "OPXDemon Network", null, false, false, ""));
         out.add(new GadgetProfile(
                 0, "ECM Network (Linux / macOS)", TargetOs.LINUX,
                 EnumSet.of(GadgetFunction.ECM),
                 "0x0525", "0xa4a1",
-                "Linux Foundation", "CDC Ethernet", "STRYKER006",
+                "Linux Foundation", "CDC Ethernet", "OPXDEMON006",
                 "OPXDemon ECM", null, false, false, ""));
         out.add(new GadgetProfile(
                 0, "Serial Port (ACM)", TargetOs.GENERIC,
                 EnumSet.of(GadgetFunction.ACM),
                 "0x0525", "0xa4a7",
-                "Linux Foundation", "CDC ACM", "STRYKER007",
+                "Linux Foundation", "CDC ACM", "OPXDEMON007",
                 "OPXDemon Serial", null, false, false, ""));
         out.add(new GadgetProfile(
                 0, BackChannelMarker.PROFILE_NAME, TargetOs.WINDOWS,

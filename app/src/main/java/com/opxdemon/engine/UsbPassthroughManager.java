@@ -135,7 +135,7 @@ public final class UsbPassthroughManager {
             connection.close();
             return false;
         }
-        String qemuId = "stryker_usb_" + device.getDeviceId();
+        String qemuId = "opxdemon_usb_" + device.getDeviceId();
         try {
             JSONObject args = new JSONObject();
             args.put("driver", "usb-host");

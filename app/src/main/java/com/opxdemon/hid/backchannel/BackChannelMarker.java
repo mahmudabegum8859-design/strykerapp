@@ -11,7 +11,7 @@ public final class BackChannelMarker {
     public static final String PID_BARE = "6018";
     public static final String MANUFACTURER = "OPXDemon";
     public static final String PRODUCT = "OPXDemon Back-Channel";
-    public static final String SERIAL = "STRYKERBC1";
+    public static final String SERIAL = "OPXDEMONBC1";
 
     public static final String HIDTOGO_PROFILE_NAME = "HID-to-Go (KBD + Mouse + Channel)";
     public static final String HIDTOGO_VID = "0x1d50";
@@ -19,5 +19,5 @@ public final class BackChannelMarker {
     public static final String HIDTOGO_VID_BARE = "1D50";
     public static final String HIDTOGO_PID_BARE = "6019";
     public static final String HIDTOGO_PRODUCT = "OPXDemon HID-to-Go";
-    public static final String HIDTOGO_SERIAL = "STRYKERHTG1";
+    public static final String HIDTOGO_SERIAL = "OPXDEMONHTG1";
 }

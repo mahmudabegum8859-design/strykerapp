@@ -530,7 +530,7 @@ class NeoTermActivity : AppCompatActivity(), ServiceConnection, SharedPreference
       parameter.executablePath("pty:127.0.0.1:1051")
     } else {
       parameter
-        .executablePath("${NeoTermPath.BIN_PATH}/stryker-ch")
+        .executablePath("${NeoTermPath.BIN_PATH}/opxdemon-ch")
         .initialCommand("clear")
     }
     val session = termService!!.createTermSession(parameter)

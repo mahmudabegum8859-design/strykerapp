@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # Version: 2.3.0
 #
-# Stryker Terminal chroot entry. Built into the main Stryker app: we reuse the
+# OPXDemon Terminal chroot entry. Built into the main OPXDemon app: we reuse the
 # app's own chroot environment (bootroot_env -> BUSYBOX + MNT + CHROOT_SHELL +
 # CHROOT_PATH + validation), so the session is identical to what the app uses,
 # with the full toolset (Metasploit / Nmap / Nuclei / Hydra / SearchSploit).
@@ -11,12 +11,12 @@
 # is unavailable in the rootfs we fall back to a plain login shell (current
 # behaviour), so there is never a regression.
 
-STRYKER_FILES=/data/data/com.opxdemon/files
-ROOTLESS_FLAG=$STRYKER_FILES/rootless/.active
-MARKER=$STRYKER_FILES/.vm_pty_resize
+OPXDEMON_FILES=/data/data/com.opxdemon/files
+ROOTLESS_FLAG=$OPXDEMON_FILES/rootless/.active
+MARKER=$OPXDEMON_FILES/.vm_pty_resize
 
 # Wide Android PATH (include common su manager locations).
-export PATH=$STRYKER_FILES/usr/bin:$STRYKER_FILES/usr/sbin:/sbin:/system/bin:/system/xbin:/system/sbin:/su/bin:/magisk/.core/bin:/debug_ramdisk:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/odm/bin:/vendor/bin:.
+export PATH=$OPXDEMON_FILES/usr/bin:$OPXDEMON_FILES/usr/sbin:/sbin:/system/bin:/system/xbin:/system/sbin:/su/bin:/magisk/.core/bin:/debug_ramdisk:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/odm/bin:/vendor/bin:.
 
 clear
 
@@ -31,8 +31,8 @@ clear
 # In every case the guest has no way to discover the phone's terminal size on its own, so we measure
 # the local PTY here and push the geometry across.
 if [ -e "$ROOTLESS_FLAG" ]; then
-    BB=$STRYKER_FILES/busybox
-    echo "[*] Connecting to Stryker rootless VM..."
+    BB=$OPXDEMON_FILES/busybox
+    echo "[*] Connecting to OPXDemon rootless VM..."
     probe() { "$BB" nc -w 1 127.0.0.1 "$1" </dev/null >/dev/null 2>&1; }
     port=""
     i=0
@@ -142,9 +142,9 @@ if [ -e "$ROOTLESS_FLAG" ]; then
     exit 0
 fi
 
-if [ ! -e "$STRYKER_FILES/bootroot_env" ]; then
-    echo "[-] $STRYKER_FILES/bootroot_env missing."
-    echo "    Open the Stryker app once so it sets up and mounts its chroot,"
+if [ ! -e "$OPXDEMON_FILES/bootroot_env" ]; then
+    echo "[-] $OPXDEMON_FILES/bootroot_env missing."
+    echo "    Open the OPXDemon app once so it sets up and mounts its chroot,"
     echo "    then reopen the terminal."
     exit 2
 fi
@@ -165,7 +165,7 @@ done
 # "Inappropriate ioctl for device" whenever the pty is already the controlling terminal of our
 # session — which is every launch from the app's terminal. The plain login shell inherits that
 # same ctty and does job control fine, so it is the default now; the setsid path stays behind
-# STRYKER_TRY_SETSID=1 for su implementations that hand over no ctty at all. Either way the
+# OPXDEMON_TRY_SETSID=1 for su implementations that hand over no ctty at all. Either way the
 # attempt runs WITHOUT exec, so a failure falls through instead of killing the session.
 exec "$SU" -c '
 . /data/data/com.opxdemon/files/bootroot_env
@@ -181,7 +181,7 @@ chroot_env() {
         PATH="$CHROOT_PATH" \
         "$@"
 }
-if [ "$STRYKER_TRY_SETSID" = "1" ] \
+if [ "$OPXDEMON_TRY_SETSID" = "1" ] \
    && { [ -x "$MNT/usr/bin/setsid" ] || [ -x "$MNT/bin/setsid" ]; }; then
     started=$(date +%s 2>/dev/null || echo 0)
     chroot_env setsid -c "$CHROOT_SHELL" -l

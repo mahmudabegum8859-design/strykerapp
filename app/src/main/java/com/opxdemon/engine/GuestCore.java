@@ -12,13 +12,13 @@ import java.io.OutputStream;
 
 public final class GuestCore {
 
-    public static final String ASSET = "rootless/stryker-guest-core.tar";
+    public static final String ASSET = "rootless/opxdemon-guest-core.tar";
     public static final String MARKER = "/CORE/PixieWps/pixie.py";
     public static final String VERSION_FILE = "/CORE/.version";
     public static final String VERSION = "6";
 
     private static final String TAG = "GuestCore";
-    private static final String STAGED_NAME = "stryker-core.tar";
+    private static final String STAGED_NAME = "opxdemon-core.tar";
 
     private GuestCore() {
     }

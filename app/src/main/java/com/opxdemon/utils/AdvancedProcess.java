@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public abstract class AdvancedProcess {
 
-    public static final String MACHINE_PREFIX = "STRYKER:";
+    public static final String MACHINE_PREFIX = "OPXDEMON:";
 
     public Activity activity;
     public Context context;

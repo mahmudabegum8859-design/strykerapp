@@ -34,7 +34,7 @@
                     android:layout_height="28dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_white"
-                    app:tint="@color/stryker_logo_accent" />
+                    app:tint="@color/opxdemon_logo_accent" />
             </FrameLayout>
 
             <LinearLayout

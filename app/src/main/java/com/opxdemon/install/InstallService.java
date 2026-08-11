@@ -46,7 +46,7 @@ public class InstallService extends Service {
     public static final String TOOL_HYDRA = "hydra";
     public static final String TOOL_CAMERADAR = "cameradar";
 
-    public static final String NUCLEI_TEMPLATES_MARKER = "/root/.config/nuclei/.stryker-templates-ok";
+    public static final String NUCLEI_TEMPLATES_MARKER = "/root/.config/nuclei/.opxdemon-templates-ok";
 
     public static final String ACTION_INSTALL = "com.opxdemon.install.INSTALL";
     public static final String ACTION_CANCEL = "com.opxdemon.install.CANCEL";
@@ -61,7 +61,7 @@ public class InstallService extends Service {
     public static final String STATUS_DONE = "done";
     public static final String STATUS_FAILED = "failed";
 
-    private static final String CHANNEL_ID = "stryker_install_channel";
+    private static final String CHANNEL_ID = "opxdemon_install_channel";
     private static final int FOREGROUND_NOTIFICATION_ID = 5100;
 
     private static final long MAX_LOG_FILE_BYTES = 256 * 1024;
@@ -163,12 +163,12 @@ public class InstallService extends Service {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         createChannel();
         executor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "stryker-install-worker");
+            Thread t = new Thread(r, "opxdemon-install-worker");
             t.setPriority(Thread.NORM_PRIORITY - 1);
             return t;
         });
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "stryker:install");
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "opxdemon:install");
         wakeLock.setReferenceCounted(false);
     }
 

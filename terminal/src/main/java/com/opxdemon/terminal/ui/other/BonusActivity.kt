@@ -97,7 +97,7 @@ class BonusActivity : AppCompatActivity() {
     im.translationZ = 20f
     im.scaleX = 0f
     im.scaleY = 0f
-    val platlogo = AppCompatResources.getDrawable(this, R.drawable.strykerdefence)
+    val platlogo = AppCompatResources.getDrawable(this, R.drawable.opxdemondefence)
     platlogo!!.alpha = 0
     im.setImageDrawable(platlogo)
     im.background = makeRipple()

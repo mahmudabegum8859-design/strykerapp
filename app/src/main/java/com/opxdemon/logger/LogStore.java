@@ -46,7 +46,7 @@ public final class LogStore {
     private static final int BATCH_MAX = 512;
     private static final long MIN_BROADCAST_MS = 250L;
 
-    private static final String DB_NAME = "stryker_logs.db";
+    private static final String DB_NAME = "opxdemon_logs.db";
     private static final int DB_VERSION = 1;
     private static final String TABLE = "log";
 

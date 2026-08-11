@@ -75,7 +75,7 @@ class SettingsActivity : AppCompatActivity() {
       File(usr).mkdirs()
       File(bin).deleteRecursively()
       extractAssetsDir("bin", "$bin/")
-      for (name in listOf("bash", "stryker-ch", "android-su")) {
+      for (name in listOf("bash", "opxdemon-ch", "android-su")) {
         try { File(bin, name).setExecutable(true, false) } catch (_: Exception) {}
       }
       runOnUiThread {

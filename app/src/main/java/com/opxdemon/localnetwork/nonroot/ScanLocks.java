@@ -6,7 +6,7 @@ import android.os.PowerManager;
 
 public final class ScanLocks {
 
-    private static final String TAG = "stryker:lan-scan";
+    private static final String TAG = "opxdemon:lan-scan";
 
     private WifiManager.MulticastLock multicast;
     private WifiManager.WifiLock wifiLock;

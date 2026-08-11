@@ -108,7 +108,7 @@ public final class NonRootScanner {
 
     public void start() {
         if (!started.compareAndSet(false, true)) return;
-        Thread t = new Thread(this::run, "stryker-lan-scan");
+        Thread t = new Thread(this::run, "opxdemon-lan-scan");
         t.setDaemon(true);
         worker = t;
         t.start();
@@ -246,7 +246,7 @@ public final class NonRootScanner {
                         tcpDone = done;
                         publishProgress();
                     }
-                }, cancelled), "stryker-lan-tcp");
+                }, cancelled), "opxdemon-lan-tcp");
         tcp.setDaemon(true);
         tcp.start();
 
@@ -255,7 +255,7 @@ public final class NonRootScanner {
             if (System.currentTimeMillis() >= deadline) break;
             log("Discovery round " + (round + 1) + "/" + ScanConfig.ROUNDS);
             if (sweep == null || !sweep.isAlive()) {
-                sweep = new Thread(() -> icmp.sweep(), "stryker-lan-icmp-" + round);
+                sweep = new Thread(() -> icmp.sweep(), "opxdemon-lan-icmp-" + round);
                 sweep.setDaemon(true);
                 sweep.start();
             }
@@ -364,7 +364,7 @@ public final class NonRootScanner {
             if (n.ttl <= 0 && n.rank < TTL_RANK_LIMIT) targets.add(n);
         }
         if (targets.isEmpty()) return;
-        ExecutorService pool = newPool(TTL_THREADS, "stryker-ttl");
+        ExecutorService pool = newPool(TTL_THREADS, "opxdemon-ttl");
         final CountDownLatch latch = new CountDownLatch(targets.size());
         for (final Node n : targets) {
             pool.submit(() -> {
@@ -397,7 +397,7 @@ public final class NonRootScanner {
         if (threads > 8) threads = 8;
         int share = ScanConfig.TCP_SCAN_INFLIGHT / threads;
         final int inflight = share < MIN_DEEP_INFLIGHT ? MIN_DEEP_INFLIGHT : share;
-        ExecutorService pool = newPool(threads, "stryker-deep");
+        ExecutorService pool = newPool(threads, "opxdemon-deep");
         final CountDownLatch latch = new CountDownLatch(targets.size());
         for (final Node n : targets) {
             pool.submit(() -> {
@@ -433,7 +433,7 @@ public final class NonRootScanner {
         if (budget <= 0L) return;
         final List<Node> targets = snapshot();
         if (targets.isEmpty()) return;
-        ExecutorService pool = newPool(BANNER_THREADS, "stryker-banner");
+        ExecutorService pool = newPool(BANNER_THREADS, "opxdemon-banner");
         final CountDownLatch latch = new CountDownLatch(targets.size());
         for (final Node n : targets) {
             pool.submit(() -> {

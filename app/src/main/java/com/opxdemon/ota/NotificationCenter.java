@@ -16,7 +16,7 @@ import com.opxdemon.R;
 
 public final class NotificationCenter {
 
-    public static final String CHANNEL_ID = "stryker_news_channel";
+    public static final String CHANNEL_ID = "opxdemon_news_channel";
     public static final int OTA_ID = 7999;
     public static final int OTA_PROGRESS_ID = 7998;
     private static final int NEWS_BASE = 700000;
