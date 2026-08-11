@@ -55,6 +55,11 @@ jobs:
             boot_machine: virt
             boot_cpu: cortex-a15
             boot_console: ttyAMA0
+            # The QEMU "virt" machine's generic PCI host does not probe on
+            # 32-bit ARM kernels with this QEMU ("missing reg property"), so
+            # use virtio-mmio transports for the ARM guest.
+            blk_dev: virtio-blk-device
+            net_dev: virtio-net-device
           - id: i386
             arch: i386
             qemu_static: i386
@@ -67,6 +72,8 @@ jobs:
             boot_machine: pc
             boot_cpu: qemu32
             boot_console: ttyS0
+            blk_dev: virtio-blk-pci
+            net_dev: virtio-net-pci
           - id: amd64
             arch: amd64
             qemu_static: x86_64
@@ -79,6 +86,8 @@ jobs:
             boot_machine: pc
             boot_cpu: qemu64
             boot_console: ttyS0
+            blk_dev: virtio-blk-pci
+            net_dev: virtio-net-pci
 
     steps:
       - uses: actions/checkout@v4
@@ -204,8 +213,8 @@ jobs:
             -initrd /tmp/${{ matrix.initrd_out }} \
             -append "root=/dev/vda rw rootwait console=${{ matrix.boot_console }} loglevel=3" \
             -drive file=/tmp/smoke.img,format=raw,if=none,id=drive0 \
-            -device virtio-blk-pci,drive=drive0 \
-            -netdev user,id=net0 -device virtio-net-pci,netdev=net0 \
+            -device ${{ matrix.blk_dev }},drive=drive0 \
+            -netdev user,id=net0 -device ${{ matrix.net_dev }},netdev=net0 \
             -nographic -no-reboot > /tmp/boot.log 2>&1 || true
           sudo chmod 644 /tmp/boot.log
           grep -q 'login:' /tmp/boot.log && echo "BOOT_OK: reached login prompt" \
