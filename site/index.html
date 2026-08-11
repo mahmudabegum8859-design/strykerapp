@@ -326,6 +326,22 @@
   .dl-panel::before { content: ""; position: absolute; inset: -40% -20%; background: conic-gradient(from 0deg, transparent 0deg, rgba(34,211,238,.14) 60deg, transparent 120deg); animation: spin-slow 9s linear infinite; }
   .dl-panel > * { position: relative; }
   @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .ver-select { margin-top: 26px; text-align: left; }
+  .ver-select label { font-size: .8rem; color: var(--muted-2); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+  .ver-select-row { display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .ver-select select {
+    appearance: none; -webkit-appearance: none;
+    min-width: 250px; flex: 0 1 auto;
+    background: rgba(255,255,255,.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23818cf8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    border: 1px solid rgba(129,140,248,.35); color: var(--text); font-family: var(--font-mono);
+    font-size: .88rem; padding: 11px 38px 11px 14px; border-radius: 12px; cursor: pointer;
+    transition: border-color .2s, background-color .2s;
+  }
+  .ver-select select:hover { border-color: var(--accent); }
+  .ver-select select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,211,238,.18); }
+  .ver-note { font-size: .8rem; color: var(--muted); }
+  .ver-note.ok { color: var(--accent); }
+
   .dl-panel h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; }
   .dl-panel .dl-sub { color: var(--muted); margin-bottom: 26px; }
   .dl-files { margin-top: 26px; text-align: left; display: grid; gap: 8px; }
@@ -572,6 +588,18 @@
           </a>
           <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp/releases" target="_blank" rel="noopener">All releases ↗</a>
         </div>
+
+        <!-- Version picker: defaults to the latest release; the user may pick an older build manually -->
+        <div class="ver-select" id="verSelectWrap">
+          <label for="versionSelect">Choose a version</label>
+          <div class="ver-select-row">
+            <select id="versionSelect" aria-label="Choose an APK version">
+              <option value="">Detecting versions…</option>
+            </select>
+            <span class="ver-note" id="verNote">No selection = always the newest release</span>
+          </div>
+        </div>
+
         <details class="dl-files">
           <summary>All payload files (26) — rooted + rootless, every architecture</summary>
           <div class="files-list">
@@ -671,13 +699,14 @@
 (function () {
   "use strict";
 
+  /* ================= CONFIG ================= */
   var REPO = "mahmudabegum8859-design/strykerapp";
   var MANIFEST_URL = "https://raw.githubusercontent.com/" + REPO + "/main/opxdemon_manifest.json";
   var RELEASES_API = "https://api.github.com/repos/" + REPO + "/releases?per_page=8";
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------------- particles background ---------------- */
+  /* ================= PARTICLES BACKGROUND ================= */
   var canvas = document.getElementById("particles");
   var ctx = canvas.getContext("2d");
   var W, H, particles = [], mouse = { x: -9999, y: -9999 };
@@ -749,7 +778,7 @@
     if (e.touches[0]) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }
   }, { passive: true });
 
-  /* ---------------- nav ---------------- */
+  /* ================= NAV ================= */
   var nav = document.getElementById("nav");
   var burger = document.getElementById("navBurger");
   var navLinks = document.getElementById("navLinks");
@@ -760,7 +789,7 @@
   });
   navLinks.addEventListener("click", function (e) { if (e.target.tagName === "A") navLinks.classList.remove("open"); });
 
-  /* ---------------- reveal + counters + tilt ---------------- */
+  /* ================= REVEAL + COUNTERS + TILT ================= */
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       if (en.isIntersecting) {
@@ -793,18 +822,40 @@
     });
   });
 
-  /* ---------------- duplicate marquee for seamless loop ---------------- */
+  /* ================= MARQUEE (duplicate for seamless loop) ================= */
   var track = document.getElementById("marqueeTrack");
   track.innerHTML += track.innerHTML;
 
-  /* ---------------- auto-detecting release ---------------- */
+  /* =====================================================================
+   *  RELEASE / DOWNLOAD SYNC
+   *  --------------------------------------------------------------------
+   *  - Fetches the GitHub releases list for the repository.
+   *  - The NEWEST release that ships an APK is ALWAYS the default
+   *    download — even if the visitor never touches the version menu.
+   *  - Fills the "Choose a version" dropdown with every release that has
+   *    an APK, so a visitor can manually pick an older build.
+   *  - Keeps the changelog in sync with the live release data.
+   *  Fallback chain: GitHub API -> opxdemon_manifest.json -> local APK.
+   * ===================================================================== */
+
+  /* All releases that carry an APK, newest first:
+     { url, version, size, date, tag } */
+  var releaseList = [];
+
+  /* The visitor's manual pick ("" = follow the newest release automatically) */
+  var chosenUrl = "";
+
+  /* Human-readable file size: 26214400 -> "25.0 MB" */
   function fmtSize(bytes) {
     if (!bytes) return "";
     var mb = bytes / 1048576;
     return mb >= 1024 ? (mb / 1024).toFixed(2) + " GB" : mb.toFixed(1) + " MB";
   }
+
+  /* Strip a leading "v": "v1.3" -> "1.3" */
   function versionFromTag(tag) { return String(tag || "").replace(/^v/, ""); }
 
+  /* Tiny safe markdown renderer for release notes (headings, lists, code, links) */
   function miniMarkdown(md) {
     if (!md) return "";
     var s = String(md);
@@ -824,6 +875,7 @@
     return s;
   }
 
+  /* Point every download button + version badge at one APK build */
   function applyDownload(url, version, size, sha) {
     [document.getElementById("downloadBtn"), document.getElementById("downloadBtn2")].forEach(function (b) {
       if (url) b.href = url;
@@ -834,6 +886,7 @@
     document.getElementById("downloadLabel").textContent = label;
     document.getElementById("downloadLabel2").textContent = label;
     document.getElementById("navDownload").textContent = version ? "Download v" + version : "Download APK";
+    document.getElementById("dlSub").textContent = url ? "Auto-detected from the GitHub releases — the newest build is always selected by default." : document.getElementById("dlSub").textContent;
     if (version) {
       document.getElementById("badgeVersion").textContent = "v" + version;
       document.getElementById("metaVersion").textContent = "v" + version;
@@ -845,6 +898,7 @@
     if (sha) document.getElementById("specSha").textContent = sha;
   }
 
+  /* Fallback #1: pull the app block straight out of opxdemon_manifest.json */
   function applyManifest() {
     return fetch(MANIFEST_URL, { headers: { "Accept": "application/json" } })
       .then(function (r) { if (!r.ok) throw new Error("manifest " + r.status); return r.json(); })
@@ -856,6 +910,7 @@
       });
   }
 
+  /* Changelog from the manifest's "news" array (used when GitHub API is down) */
   function renderChangelogFromManifest(m) {
     var list = document.getElementById("changelogList");
     if (!m || !m.news || !m.news.length) return;
@@ -869,6 +924,68 @@
     list.innerHTML = html;
   }
 
+  /* Fill the "Choose a version" dropdown with every release that has an APK.
+     The first option is always "Latest (recommended)". */
+  function fillVersionSelect() {
+    var sel = document.getElementById("versionSelect");
+    var html = '<option value="">Latest (recommended)</option>';
+    releaseList.forEach(function (rel) {
+      html += '<option value="' + rel.url + '">v' + rel.version +
+        (rel.size ? " · " + fmtSize(rel.size) : "") +
+        (rel.date ? " · " + new Date(rel.date).toUTCString().slice(0, 11) : "") + '</option>';
+    });
+    sel.innerHTML = html;
+    sel.value = ""; /* always default to the newest release */
+  }
+
+  /* When the visitor picks a version, point every button at that exact APK.
+     Picking the first option ("Latest") switches back to the newest build. */
+  function onVersionChange() {
+    var sel = document.getElementById("versionSelect");
+    var url = sel.value;
+    var note = document.getElementById("verNote");
+    chosenUrl = url;
+    if (!url) {
+      /* "Latest (recommended)" -> newest release, always up to date */
+      if (releaseList.length) {
+        applyDownload(releaseList[0].url, releaseList[0].version, releaseList[0].size, null);
+      }
+      note.textContent = "No selection = always the newest release";
+      note.classList.remove("ok");
+    } else {
+      var rel = releaseList.find(function (r) { return r.url === url; });
+      if (rel) applyDownload(rel.url, rel.version, rel.size, null);
+      note.textContent = "Now downloading v" + (rel ? rel.version : "") + " — switch back to Latest anytime";
+      note.classList.add("ok");
+    }
+  }
+
+  /* Changelog rendered from the GitHub releases list */
+  function renderChangelog(releases) {
+    var list = document.getElementById("changelogList");
+    var latest = releaseList.length ? releaseList[0].tag : null;
+    var html = "";
+    releases.forEach(function (rel) {
+      if (rel.draft) return;
+      var apk = rel.assets && rel.assets.find(function (a) { return /\.apk$/i.test(a.name); });
+      var isLatest = latest && rel.tag_name === latest;
+      var ver = versionFromTag(rel.tag_name) || "release";
+      var date = rel.published_at ? new Date(rel.published_at).toUTCString().slice(0, 16) : "";
+      html += '<div class="cl-item' + (isLatest ? " cl-latest" : "") + '">' +
+        '<div class="cl-head">' +
+        '<span class="cl-ver">' + ver + '</span>' +
+        (isLatest ? '<span class="cl-tag">latest</span>' : "") +
+        '<span class="cl-date">' + date + '</span>' +
+        '<span class="cl-date">' + (apk ? fmtSize(apk.size) + " APK" : "payloads") + '</span>' +
+        '</div>' +
+        '<div class="cl-body">' + (miniMarkdown(rel.body || rel.name || "") || "<i>No notes.</i>") + '</div>' +
+        '</div>';
+    });
+    if (!html) throw new Error("no releases to show");
+    list.innerHTML = html;
+  }
+
+  /* Main sync: fetch releases, default to the newest APK, fill the dropdown */
   function fetchReleases() {
     var list = document.getElementById("changelogList");
     return fetch(RELEASES_API, { headers: { "Accept": "application/vnd.github+json" } })
@@ -878,40 +995,27 @@
       })
       .then(function (releases) {
         if (!Array.isArray(releases) || !releases.length) throw new Error("empty");
-        var latest = null;
+        /* Collect every non-draft release that ships an APK (newest first) */
         releases.forEach(function (rel) {
           if (rel.draft) return;
           var apk = rel.assets && rel.assets.find(function (a) { return /\.apk$/i.test(a.name); });
-          if (apk && !latest) {
-            latest = rel;
-            var ver = versionFromTag(rel.tag_name) ||
-              (apk.name.match(/OPXdemon-([\d.]+)\.apk/) || [])[1] || "";
-            applyDownload(apk.browser_download_url, ver, apk.size, null);
-          }
+          if (!apk) return;
+          var ver = versionFromTag(rel.tag_name) ||
+            (apk.name.match(/OPXdemon-([\d.]+)\.apk/) || [])[1] || rel.tag_name;
+          releaseList.push({ url: apk.browser_download_url, version: ver, size: apk.size, date: rel.published_at, tag: rel.tag_name });
         });
-        var html = "";
-        releases.forEach(function (rel) {
-          if (rel.draft) return;
-          var apk = rel.assets && rel.assets.find(function (a) { return /\.apk$/i.test(a.name); });
-          var isLatest = latest && rel.id === latest.id;
-          var ver = versionFromTag(rel.tag_name) || "release";
-          var date = rel.published_at ? new Date(rel.published_at).toUTCString().slice(0, 16) : "";
-          html += '<div class="cl-item' + (isLatest ? " cl-latest" : "") + '">' +
-            '<div class="cl-head">' +
-            '<span class="cl-ver">' + ver + '</span>' +
-            (isLatest ? '<span class="cl-tag">latest</span>' : "") +
-            '<span class="cl-date">' + date + '</span>' +
-            '<span class="cl-date">' + (apk ? fmtSize(apk.size) + " APK" : "payloads") + '</span>' +
-            '</div>' +
-            '<div class="cl-body">' + (miniMarkdown(rel.body || rel.name || "") || "<i>No notes.</i>") + '</div>' +
-            '</div>';
-        });
-        if (!html) throw new Error("no releases to show");
-        list.innerHTML = html;
+        if (!releaseList.length) throw new Error("no apk releases");
+        /* The newest release is ALWAYS the default download */
+        applyDownload(releaseList[0].url, releaseList[0].version, releaseList[0].size, null);
+        /* Populate the manual version picker (default stays "Latest") */
+        fillVersionSelect();
+        document.getElementById("versionSelect").addEventListener("change", onVersionChange);
+        /* Changelog */
+        renderChangelog(releases);
       })
       .catch(function (err) {
+        /* Fallback: manifest -> local preview APK */
         return applyManifest().catch(function (e2) {
-          /* last-resort: local preview APK */
           return fetch("app-debug.apk", { method: "HEAD" }).then(function (r) {
             if (r.ok) {
               applyDownload("app-debug.apk", null, null, null);
@@ -926,6 +1030,7 @@
       });
   }
 
+  /* Kick off the release sync: fills the download buttons, the changelog and the version dropdown. */
   fetchReleases();
 
 })();
