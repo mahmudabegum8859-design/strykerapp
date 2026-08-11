@@ -1,5 +1,5 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 2,
   "core": {
     "version": "chroot-main",
     "note": "Legacy Alpine chroot for app versions below 6. Do not repoint these keys: shipped builds < 6 read them directly and cannot be changed.",
@@ -16,57 +16,197 @@
     "debian": {
       "min_version_code": 1,
       "version": "chroot-debian-trixie",
-      "note": "Debian trixie arm64, same rootfs the rootless VM boots. arm64-v8a only. min_version_code 1 so OPXdemon 1.1 (versionCode 1) installs the Debian chroot from the chroot-main release.",
+      "note": "Debian trixie rootfs per architecture. All payloads are served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 are boot-verified in QEMU but not device-tested (no sha256 yet, size is exact). The rooted engine picks the chroot matching the device ABI.",
       "chroot64": {
-        "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/chroot64-debian.tar.gz",
+        "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/chroot64-debian.tar.gz",
         "sha256": "bb27ba9f063dc8000eef947db36df1c0b96f1ec56edb36519a24b7f0ec9b030c",
         "size": 237502035
+      },
+      "arch": {
+        "arm64": {
+          "chroot64": {
+            "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/chroot64-debian.tar.gz",
+            "sha256": "bb27ba9f063dc8000eef947db36df1c0b96f1ec56edb36519a24b7f0ec9b030c",
+            "size": 237502035
+          }
+        },
+        "armhf": {
+          "chroot64": {
+            "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/chroot64-debian-armhf.tar.gz",
+            "sha256": "",
+            "size": 192047859
+          }
+        },
+        "i386": {
+          "chroot64": {
+            "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/chroot64-debian-i386.tar.gz",
+            "sha256": "",
+            "size": 229257183
+          }
+        },
+        "amd64": {
+          "chroot64": {
+            "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/chroot64-debian-amd64.tar.gz",
+            "sha256": "626f31dd64bd2689b9c2e85cf9c4038296094330853526622fa0cb590136f078",
+            "size": 277685330
+          }
+        }
       }
     }
   },
   "rootless": {
     "version": "rootless-main",
-    "note": "Local dev ships these inside the APK under assets/rootless/. This block is the OTA fallback; arm64-v8a only.",
+    "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested (no sha256 yet, size is exact).",
     "qemu": {
-      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/qemu-system-aarch64",
+      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
       "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
       "size": 43800304
     },
     "kernel": {
-      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/Image",
+      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
       "sha256": "cbe59a02e7ea979a150661032440c94e2c4db0b735af2416e11ae5cac15a58e4",
       "size": 37605312
     },
     "initrd": {
-      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/initrd.img",
+      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd.img",
       "sha256": "655f3ef013e7818e9ee874cf3b44a4c0bdc8a586c986cf237cb74c41862dfd02",
       "size": 38301815
     },
     "libslirp": {
-      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/libslirp.so",
+      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/libslirp.so",
       "sha256": "226372426fda32c9fccd8e831d0901a86bfff3c3e6f7a60336d6dde149f756c4",
       "size": 1145496
     },
     "rootfs": {
-      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/rootfs.imgz",
+      "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs.imgz",
       "sha256": "f80c2b1e2433c3036aa745da2a5935cf5dd61b65b17bbeabae87b49bd68a12ef",
       "size": 427974567
+    },
+    "arch": {
+      "arm64": {
+        "qemu": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
+          "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
+          "size": 43800304
+        },
+        "kernel": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
+          "sha256": "cbe59a02e7ea979a150661032440c94e2c4db0b735af2416e11ae5cac15a58e4",
+          "size": 37605312
+        },
+        "initrd": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd.img",
+          "sha256": "655f3ef013e7818e9ee874cf3b44a4c0bdc8a586c986cf237cb74c41862dfd02",
+          "size": 38301815
+        },
+        "libslirp": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/libslirp.so",
+          "sha256": "226372426fda32c9fccd8e831d0901a86bfff3c3e6f7a60336d6dde149f756c4",
+          "size": 1145496
+        },
+        "rootfs": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs.imgz",
+          "sha256": "f80c2b1e2433c3036aa745da2a5935cf5dd61b65b17bbeabae87b49bd68a12ef",
+          "size": 427974567
+        }
+      },
+      "armhf": {
+        "qemu": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-arm",
+          "sha256": "17243829dadb879a4dade8216422a6b26c219eba018326e35201f5ea0228640b",
+          "size": 31287032
+        },
+        "kernel": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-arm",
+          "sha256": "",
+          "size": 6033920
+        },
+        "initrd": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd-arm.img",
+          "sha256": "",
+          "size": 25071866
+        },
+        "rootfs": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-arm.imgz",
+          "sha256": "",
+          "size": 192983753
+        }
+      },
+      "i386": {
+        "qemu": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-i386",
+          "sha256": "b4652fe9161292ff5edab493dd8ed66b65ecb37502e09a4eb5a20a04f61a6e85",
+          "size": 28907184
+        },
+        "kernel": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-i386",
+          "sha256": "",
+          "size": 5707712
+        },
+        "initrd": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd-i386.img",
+          "sha256": "",
+          "size": 28439360
+        },
+        "rootfs": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-i386.imgz",
+          "sha256": "",
+          "size": 229744516
+        }
+      },
+      "amd64": {
+        "qemu": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-x86_64",
+          "sha256": "0ef1f0926fe4961fd0107477d52209a041850db093490c505d4674718377a5df",
+          "size": 28933504
+        },
+        "kernel": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-amd64",
+          "sha256": "e7667ff961fcf0f872e2618a930454a6362ce58995f386431f60a5169c85f41a",
+          "size": 12122048
+        },
+        "initrd": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd-amd64.img",
+          "sha256": "b8967ae268739b01ee39f7d0e3f6e5ea07bda0bed2b0d2098eb6f4b68582377b",
+          "size": 36235956
+        },
+        "rootfs": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-amd64.imgz",
+          "sha256": "0d28292f9ef2920bd40f819354f08440b24b4e40214a76ab9dea522407cf27df",
+          "size": 292768756
+        }
+      }
     }
   },
   "app": {
-    "versionCode": 2,
-    "versionName": "1.2",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.2/OPXdemon-1.2.apk",
-    "sha256": "4593a5019b397a4e4fe16829cd602e1f785127ec63f49abf1614f2bb3a89f515",
-    "size": 27491599,
+    "versionCode": 3,
+    "versionName": "1.3",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.3/OPXdemon-1.3.apk",
+    "sha256": "433b5dc859fabf68f765f32aaf605fa5085342bb2864d17827a3e4526ecf9e12",
+    "size": 27496311,
     "mandatory": false,
-    "changelog": "OPXdemon 1.2\n- Bug-fix release: memory-safe Gradle defaults so the build fits 2 GiB sandboxes, preview page now shows the real version, docs cleaned up.\n- versionCode 2, versionName 1.2."
+    "changelog": "OPXdemon 1.3\n- All payloads (rooted + rootless) now download from the 'chroot + rootless core files' release.\n- Multi-architecture rootless engine: pick arm64 / armhf / i386 / amd64 guest on the setup screen.\n- armhf / i386 / amd64 kernels, initrds, rootfs and static QEMU binaries are boot-verified in QEMU but not device-tested.\n- versionCode 3, versionName 1.3."
   },
   "news": [
     {
+      "id": 3,
+      "title": "OPXdemon 1.3 — all payloads from core-files + multi-arch VM",
+      "description": "OPXdemon 1.3 (versionCode 3): every payload now downloads from the 'chroot + rootless core files' release, and the rootless engine supports arm64 (tested) plus armhf / i386 / amd64 guests (boot-verified in QEMU, not device-tested). Pick the guest architecture on the Rootless setup screen.",
+      "newsDate": "2026-08-11",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": true,
+      "actionbutton1": true,
+      "actionbutton1text": "Open release",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/core-files",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
+    {
       "id": 2,
       "title": "OPXdemon 1.2 — bug-fix release",
-      "description": "OPXdemon 1.2 (versionCode 2): fixed the build configuration so the APK builds reliably in memory-limited environments, corrected the stale version shown on the preview page, and cleaned up remaining docs. Payloads still come from the same v1.1 release.",
+      "description": "OPXdemon 1.2 (versionCode 2): fixed the build configuration so the APK builds reliably in memory-limited environments, corrected the stale version shown on the preview page, and cleaned up remaining docs.",
       "newsDate": "2026-08-11",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
@@ -81,11 +221,11 @@
     {
       "id": 1,
       "title": "OPXdemon 1.1 — rebrand & Tour Mode",
-      "description": "OPXdemon 1.1 (package com.opxdemon) by OP AMINUL FF / OPX. New Tour Mode walks you through every feature without installing anything — no root, no downloads, no extraction. Rooted and rootless engines keep pulling their payloads from the same chroot-main / rootless-main releases.",
+      "description": "OPXdemon 1.1 (package com.opxdemon) by OP AMINUL FF / OPX. New Tour Mode walks you through every feature without installing anything — no root, no downloads, no extraction.",
       "newsDate": "2026-08-10",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
-      "pinned": true,
+      "pinned": false,
       "actionbutton1": true,
       "actionbutton1text": "Open repository",
       "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp",

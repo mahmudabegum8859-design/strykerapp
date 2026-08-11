@@ -6,16 +6,28 @@ import java.io.File;
 
 public final class RootlessPaths {
 
+    public static final String PREF_ARCH = "rootless_arch";
+
     private RootlessPaths() {}
+
+    /** Guest architecture selected by the user (default arm64). */
+    public static GuestArch arch(Context c) {
+        try {
+            String key = new com.opxdemon.utils.Core(c).getString(PREF_ARCH);
+            return GuestArch.fromKey(key);
+        } catch (Throwable t) {
+            return GuestArch.ARM64;
+        }
+    }
 
     public static File base(Context c) {
         return new File(c.getFilesDir(), "rootless");
     }
 
-    public static File qemuBin(Context c)   { return new File(base(c), "qemu-system-aarch64"); }
+    public static File qemuBin(Context c)   { return new File(base(c), arch(c).qemuName); }
     public static File libslirp(Context c)  { return new File(base(c), "libslirp.so"); }
-    public static File kernel(Context c)    { return new File(base(c), "Image"); }
-    public static File initrd(Context c)    { return new File(base(c), "initrd.img"); }
+    public static File kernel(Context c)    { return new File(base(c), arch(c).kernelName); }
+    public static File initrd(Context c)    { return new File(base(c), arch(c).initrdName); }
     public static File rootfs(Context c)    { return new File(base(c), "rootfs.img"); }
     public static File rootfsGz(Context c)  { return new File(base(c), "rootfs.img.gz"); }
 

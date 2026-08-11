@@ -28,8 +28,10 @@ import com.opxdemon.R;
 import com.opxdemon.appintro.install.LogAdapter;
 import com.opxdemon.appintro.install.LogLevel;
 import com.opxdemon.appintro.install.LogLine;
+import com.opxdemon.engine.GuestArch;
 import com.opxdemon.engine.QemuInstaller;
 import com.opxdemon.engine.RootlessEngine;
+import com.opxdemon.engine.RootlessPaths;
 import com.opxdemon.engine.VmSpecs;
 import com.opxdemon.utils.Core;
 
@@ -62,6 +64,8 @@ public class SlideQemuInstall extends Fragment {
     private LogAdapter logAdapter;
 
     private MaterialButton installButton;
+
+    private java.util.Map<GuestArch, android.widget.Button> archButtons;
 
     private final EnumMap<QemuInstaller.Stage, StageRow> stageRows = new EnumMap<>(QemuInstaller.Stage.class);
 
@@ -99,9 +103,43 @@ public class SlideQemuInstall extends Fragment {
         installButton = view.findViewById(R.id.login);
 
         buildStageRows(inflater);
+        wireArchSelector(view);
 
         installButton.setOnClickListener(v -> startInstall());
         return view;
+    }
+
+    private void wireArchSelector(View view) {
+        archButtons = new java.util.LinkedHashMap<>();
+        archButtons.put(GuestArch.ARM64, view.findViewById(R.id.arch_arm64));
+        archButtons.put(GuestArch.ARMHF, view.findViewById(R.id.arch_armhf));
+        archButtons.put(GuestArch.I386, view.findViewById(R.id.arch_i386));
+        archButtons.put(GuestArch.AMD64, view.findViewById(R.id.arch_amd64));
+        for (final GuestArch arch : GuestArch.values()) {
+            android.widget.Button b = archButtons.get(arch);
+            if (b == null) continue;
+            b.setOnClickListener(v -> {
+                core.putString(RootlessPaths.PREF_ARCH, arch.key);
+                styleArchButtons(arch);
+            });
+        }
+        styleArchButtons(RootlessPaths.arch(context));
+    }
+
+    private void styleArchButtons(GuestArch selected) {
+        for (java.util.Map.Entry<GuestArch, android.widget.Button> e : archButtons.entrySet()) {
+            android.widget.Button b = e.getValue();
+            if (b == null) continue;
+            boolean active = e.getKey() == selected;
+            b.setAlpha(active ? 1f : 0.55f);
+            b.setTypeface(null, active ? android.graphics.Typeface.BOLD
+                    : android.graphics.Typeface.NORMAL);
+            b.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(context,
+                            active ? R.color.opxdemon_accent : R.color.light_contrast)));
+            b.setTextColor(ContextCompat.getColor(context,
+                    active ? R.color.light_contrast : R.color.grey));
+        }
     }
 
     private void startInstall() {
@@ -115,7 +153,10 @@ public class SlideQemuInstall extends Fragment {
         logRecycler.setVisibility(View.VISIBLE);
         setStatus(StatusKind.RUNNING, "Rootless engine", "Starting...");
         log(LogLevel.INFO, "OPXDemon " + BuildConfig.VERSION_NAME + " · build " + BuildConfig.VERSION_CODE);
-        log(LogLevel.INFO, "Engine: rootless (QEMU aarch64)");
+        GuestArch arch = RootlessPaths.arch(context);
+        log(LogLevel.INFO, "Engine: rootless (QEMU " + arch.key + ")");
+        View archRow = getView() == null ? null : getView().findViewById(R.id.arch_row);
+        if (archRow != null) archRow.setVisibility(View.GONE);
 
         runOnUi(() -> {
             downloadBlock.setVisibility(View.VISIBLE);

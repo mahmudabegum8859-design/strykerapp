@@ -7,7 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class RemoteManifest {
 
@@ -89,7 +91,11 @@ public final class RemoteManifest {
     public int manifestVersion = 1;
     public String coreVersion = "";
     public Asset chroot64;
+    /** Per-arch Debian chroot archives keyed by GuestArch key (arm64/armhf/i386/amd64). */
+    public final Map<String, Asset> chrootByArch = new LinkedHashMap<>();
     public RootlessAssets rootless;
+    /** Per-arch rootless payload groups keyed by GuestArch key (arm64/armhf/i386/amd64). */
+    public final Map<String, RootlessAssets> rootlessByArch = new LinkedHashMap<>();
     public AppUpdate app;
     public final List<News> news = new ArrayList<>();
     public final List<NotificationItem> notifications = new ArrayList<>();
@@ -112,6 +118,17 @@ public final class RemoteManifest {
                        >= debian.optInt("min_version_code", 0)) {
                 manifest.coreVersion = debian.optString("version", core.optString("version", ""));
                 manifest.chroot64 = asset(debian.optJSONObject("chroot64"));
+                JSONObject archs = debian.optJSONObject("arch");
+                if (archs != null) {
+                    java.util.Iterator<String> it = archs.keys();
+                    while (it.hasNext()) {
+                        String key = it.next();
+                        JSONObject group = archs.optJSONObject(key);
+                        if (group == null) continue;
+                        manifest.chrootByArch.put(key.toLowerCase(java.util.Locale.ROOT),
+                                asset(group.optJSONObject("chroot64")));
+                    }
+                }
             } else {
                 manifest.coreVersion = "";
                 manifest.chroot64 = null;
@@ -126,6 +143,22 @@ public final class RemoteManifest {
                     asset(rootless.optJSONObject("initrd")),
                     asset(rootless.optJSONObject("libslirp")),
                     asset(rootless.optJSONObject("rootfs")));
+            JSONObject archs = rootless.optJSONObject("arch");
+            if (archs != null) {
+                java.util.Iterator<String> it = archs.keys();
+                while (it.hasNext()) {
+                    String key = it.next();
+                    JSONObject group = archs.optJSONObject(key);
+                    if (group == null) continue;
+                    manifest.rootlessByArch.put(key.toLowerCase(java.util.Locale.ROOT),
+                            new RootlessAssets(
+                                    asset(group.optJSONObject("qemu")),
+                                    asset(group.optJSONObject("kernel")),
+                                    asset(group.optJSONObject("initrd")),
+                                    asset(group.optJSONObject("libslirp")),
+                                    asset(group.optJSONObject("rootfs"))));
+                }
+            }
         }
 
         JSONObject app = root.optJSONObject("app");

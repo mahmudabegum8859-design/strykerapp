@@ -52,11 +52,11 @@ cat > "$APK_DIR/index.html" <<'HTML'
 </head>
 <body>
   <div class="card">
-    <h1>OPXdemon 1.2 — debug build</h1>
+    <h1>OPXdemon 1.3 — debug build</h1>
     <p>Output of <code>./gradlew assembleDebug</code>. Download the APK and sideload it
        on a <strong>rooted</strong> arm64 Android device (min SDK 24).</p>
     <a class="dl" href="app-debug.apk" download>Download app-debug.apk</a>
-    <p class="meta">Package com.opxdemon · versionCode 2 · GPLv3</p>
+    <p class="meta">Package com.opxdemon · versionCode 3 · GPLv3</p>
   </div>
 </body>
 </html>

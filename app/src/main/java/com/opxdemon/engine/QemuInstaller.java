@@ -45,7 +45,8 @@ public final class QemuInstaller {
             if (files == null) return null;
             String imgz = null, gz = null, raw = null;
             for (String f : files) {
-                if (f.equals("rootfs.imgz")) imgz = f;
+                if (f.equals("rootfs-" + RootlessPaths.arch(c).key + ".imgz")) imgz = f;
+                else if (f.equals("rootfs.imgz")) imgz = f;
                 else if (f.equals("rootfs.img.gz")) gz = f;
                 else if (f.equals("rootfs.img")) raw = f;
             }
@@ -62,17 +63,19 @@ public final class QemuInstaller {
     }
 
     public static boolean assetsPresent(Context c) {
+        GuestArch arch = RootlessPaths.arch(c);
         try {
             String[] files = c.getAssets().list(ASSET_DIR);
             if (files == null) return false;
-            boolean q = false, k = false, l = false, ird = false;
+            boolean q = false, k = false, l = true, ird = false;
             for (String f : files) {
-                if (f.equals("qemu-system-aarch64")) q = true;
-                else if (f.equals("Image")) k = true;
+                if (f.equals(arch.qemuName)) q = true;
+                else if (f.equals(arch.kernelName)) k = true;
                 else if (f.equals("libslirp.so")) l = true;
-                else if (f.equals("initrd.img")) ird = true;
+                else if (f.equals(arch.initrdName)) ird = true;
             }
-            return q && k && l && ird && rootfsAssetName(c) != null;
+            if (arch.needsLibslirp && !l) return false;
+            return q && k && ird && rootfsAssetName(c) != null;
         } catch (IOException e) {
             return false;
         }
@@ -96,16 +99,19 @@ public final class QemuInstaller {
                 return false;
             }
 
+            GuestArch arch = RootlessPaths.arch(context);
             stage(p, Stage.EXTRACTING_QEMU);
-            copyAsset(am, ASSET_DIR + "/qemu-system-aarch64", RootlessPaths.qemuBin(context), p, "QEMU");
+            copyAsset(am, ASSET_DIR + "/" + arch.qemuName, RootlessPaths.qemuBin(context), p, "QEMU");
             RootlessPaths.qemuBin(context).setExecutable(true, false);
 
             stage(p, Stage.EXTRACTING_KERNEL);
-            copyAsset(am, ASSET_DIR + "/Image", RootlessPaths.kernel(context), p, "kernel");
-            copyAsset(am, ASSET_DIR + "/initrd.img", RootlessPaths.initrd(context), p, "initrd");
+            copyAsset(am, ASSET_DIR + "/" + arch.kernelName, RootlessPaths.kernel(context), p, "kernel");
+            copyAsset(am, ASSET_DIR + "/" + arch.initrdName, RootlessPaths.initrd(context), p, "initrd");
 
             stage(p, Stage.EXTRACTING_LIBS);
-            copyAsset(am, ASSET_DIR + "/libslirp.so", RootlessPaths.libslirp(context), p, "libslirp.so");
+            if (arch.needsLibslirp) {
+                copyAsset(am, ASSET_DIR + "/libslirp.so", RootlessPaths.libslirp(context), p, "libslirp.so");
+            }
 
             stage(p, Stage.DECOMPRESSING_ROOTFS);
             String rootfsAsset = rootfsAssetName(context);
@@ -157,7 +163,10 @@ public final class QemuInstaller {
             if (!fetch(b.initrd, RootlessPaths.initrd(context), "initrd", p)) return false;
 
             stage(p, Stage.EXTRACTING_LIBS);
-            if (!fetch(b.libslirp, RootlessPaths.libslirp(context), "libslirp.so", p)) return false;
+            if (RootlessPaths.arch(context).needsLibslirp
+                    && b.libslirp != null && b.libslirp.isUsable()) {
+                if (!fetch(b.libslirp, RootlessPaths.libslirp(context), "libslirp.so", p)) return false;
+            }
 
             stage(p, Stage.DECOMPRESSING_ROOTFS);
             File rootfs = RootlessPaths.rootfs(context);
@@ -209,10 +218,9 @@ public final class QemuInstaller {
         if (!r.ok) {
             log(p, 3, label + ": " + r.error);
             return false;
-        }
-        if (asset.sha256 == null || asset.sha256.isEmpty()) {
-            log(p, 3, label + " downloaded but the manifest carries no checksum");
-        }
+        }            if (asset.sha256 == null || asset.sha256.isEmpty()) {
+                log(p, 1, label + " downloaded but the manifest carries no checksum");
+            }
         log(p, 2, label + " ready (" + mb(dest.length()) + ")");
         return true;
     }

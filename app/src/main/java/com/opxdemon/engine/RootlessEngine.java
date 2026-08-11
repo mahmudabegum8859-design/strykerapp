@@ -72,11 +72,12 @@ public final class RootlessEngine {
 
 
     public boolean isInstalled() {
+        GuestArch arch = RootlessPaths.arch(app);
         return RootlessPaths.qemuBin(app).exists()
                 && RootlessPaths.kernel(app).exists()
                 && RootlessPaths.initrd(app).exists()
-                && RootlessPaths.libslirp(app).exists()
-                && RootlessPaths.rootfs(app).exists();
+                && RootlessPaths.rootfs(app).exists()
+                && (!arch.needsLibslirp || RootlessPaths.libslirp(app).exists());
     }
 
     public boolean isRunning() {
@@ -807,15 +808,18 @@ public final class RootlessEngine {
         List<String> a = new ArrayList<>();
         a.add(RootlessPaths.qemuBin(app).getAbsolutePath());
 
+        GuestArch arch = RootlessPaths.arch(app);
         a.add("-nodefaults");
-        a.add("-M"); a.add("virt,gic-version=3");
+        a.add("-M"); a.add(machineType(arch));
 
+        // KVM only helps when the guest matches the host (arm64 guest on arm64 host).
         File kvm = new File("/dev/kvm");
-        if (kvm.exists() && kvm.canWrite()) {
+        boolean useKvm = arch == GuestArch.ARM64 && kvm.exists() && kvm.canWrite();
+        if (useKvm) {
             a.add("-cpu"); a.add("host");
             a.add("-accel"); a.add("kvm");
         } else {
-            a.add("-cpu"); a.add(cpuModel);
+            a.add("-cpu"); a.add(cpuModelFor(arch, cpuModel));
             a.add("-accel"); a.add("tcg,thread=" + (mttcg ? "multi" : "single") + ",tb-size=" + tbSize);
         }
         a.add("-smp"); a.add(cpus + ",sockets=1,cores=" + cpus + ",threads=1");
@@ -823,16 +827,18 @@ public final class RootlessEngine {
 
         a.add("-kernel"); a.add(RootlessPaths.kernel(app).getAbsolutePath());
         a.add("-initrd"); a.add(RootlessPaths.initrd(app).getAbsolutePath());
-        a.add("-append"); a.add(kernelCmdline(fastBoot));
+        a.add("-append"); a.add(kernelCmdline(arch, fastBoot));
 
         a.add("-drive"); a.add("file=" + RootlessPaths.rootfs(app).getAbsolutePath()
                 + ",if=none,id=drive0,format=raw,cache=" + cacheMode + ",aio=" + aioMode
                 + ",discard=unmap,detect-zeroes=unmap");
-        if (ioThread) {
+        if (ioThread && arch.isPci()) {
             a.add("-object"); a.add("iothread,id=io0");
             a.add("-device"); a.add("virtio-blk-pci,drive=drive0,iothread=io0");
-        } else {
+        } else if (arch.isPci()) {
             a.add("-device"); a.add("virtio-blk-pci,drive=drive0");
+        } else {
+            a.add("-device"); a.add("virtio-blk-device,drive=drive0");
         }
 
         a.add("-netdev"); a.add("user,id=net0,ipv6=off"
@@ -844,13 +850,20 @@ public final class RootlessEngine {
                 + "-:" + RootlessPaths.GUEST_PTY_PORT
                 + ",hostfwd=tcp:" + RootlessPaths.HOST_LOOPBACK + ":" + RootlessPaths.HOST_SSH_PORT
                 + "-:" + RootlessPaths.GUEST_SSH_PORT);
-        a.add("-device"); a.add("virtio-net-pci,netdev=net0,romfile=");
+        if (arch.isPci()) {
+            a.add("-device"); a.add("virtio-net-pci,netdev=net0,romfile=");
+        } else {
+            a.add("-device"); a.add("virtio-net-device,netdev=net0");
+        }
 
-        if (usbEnabled) {
+        if (usbEnabled && arch.isPci()) {
             a.add("-device"); a.add("qemu-xhci,id=usbhc0,p2=8,p3=8");
         }
 
-        if (rngEnabled) { a.add("-device"); a.add("virtio-rng-pci"); }
+        if (rngEnabled) {
+            a.add("-device");
+            a.add(arch.isPci() ? "virtio-rng-pci" : "virtio-rng-device");
+        }
 
         shareInUse = null;
         shareActive = false;
@@ -860,7 +873,10 @@ public final class RootlessEngine {
                 shareInUse = share;
                 shareActive = true;
                 a.add("-fsdev"); a.add("local,id=fsdev0,security_model=none,path=" + share.getAbsolutePath());
-                a.add("-device"); a.add("virtio-9p-pci,fsdev=fsdev0,mount_tag=strykershare");
+                a.add("-device");
+                a.add(arch.isPci()
+                        ? "virtio-9p-pci,fsdev=fsdev0,mount_tag=strykershare"
+                        : "virtio-9p-device,fsdev=fsdev0,mount_tag=strykershare");
             } else {
                 Log.w(TAG, "9p share dir unavailable — booting without /sdcard share");
             }
@@ -873,7 +889,8 @@ public final class RootlessEngine {
         a.add("-chardev"); a.add("socket,id=serial0,path=" + RootlessPaths.serialSock(app).getAbsolutePath()
                 + ",server=on,wait=off,logfile=" + RootlessPaths.serialLog(app).getAbsolutePath());
         a.add("-serial"); a.add("chardev:serial0");
-        a.add("-device"); a.add("virtio-serial-pci");
+        a.add("-device");
+        a.add(arch.isPci() ? "virtio-serial-pci" : "virtio-serial-device");
         a.add("-chardev"); a.add("socket,id=term0,path=" + RootlessPaths.termSock(app).getAbsolutePath()
                 + ",server=on,wait=off");
         a.add("-device"); a.add("virtconsole,chardev=term0,name=org.opxdemon.term");
@@ -883,9 +900,30 @@ public final class RootlessEngine {
         return a;
     }
 
-    private static String kernelCmdline(boolean fastBoot) {
+    private static String machineType(GuestArch arch) {
+        switch (arch) {
+            case ARMHF: return "virt";
+            case I386:
+            case AMD64: return "pc";
+            case ARM64:
+            default: return "virt,gic-version=3";
+        }
+    }
+
+    private static String cpuModelFor(GuestArch arch, String arm64Model) {
+        switch (arch) {
+            case ARMHF: return "cortex-a15";
+            case I386:
+            case AMD64: return "max";
+            case ARM64:
+            default: return arm64Model;
+        }
+    }
+
+    private static String kernelCmdline(GuestArch arch, boolean fastBoot) {
+        String console = arch.isArm() ? "ttyAMA0" : "ttyS0";
         StringBuilder sb = new StringBuilder("root=/dev/vda rw rootwait rootflags=noatime "
-                + "console=ttyAMA0 loglevel=4 net.ifnames=0 mitigations=off stryker.rootless=1");
+                + "console=" + console + " loglevel=4 net.ifnames=0 mitigations=off stryker.rootless=1");
         if (fastBoot) {
             sb.append(" init_on_alloc=0 init_on_free=0 audit=0 nokaslr")
               .append(" rcupdate.rcu_expedited=1 rcupdate.rcu_normal_after_boot=1")
