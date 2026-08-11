@@ -30,4 +30,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build --stacktrace
+        # gradle.properties keeps a tight 768m heap so sandboxed/preview builds
+        # fit a 2 GiB cgroup; the release R8 pass needs more, so override the
+        # Gradle daemon JVM on the command line (takes precedence) for CI only.
+        run: ./gradlew build --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC"
