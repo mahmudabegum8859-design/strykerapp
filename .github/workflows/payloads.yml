@@ -1,0 +1,220 @@
+name: Build multi-arch payloads (Not Tested)
+
+# Builds Debian trixie root filesystems, kernels, initramfs and chroot tarballs
+# for 32-bit ARM (armhf), i386 and amd64, smoke-tests each image by booting it
+# under QEMU, and uploads the artifacts to the release used by the app
+# (default: the "chroot + rootless core files" release, tag core-files).
+#
+# Files produced here are marked "Not Tested" on the release: they boot in CI
+# but have not been verified on a real device, and the app currently wires the
+# arm64 guest only (per-architecture kernel cmdline / machine type / engine
+# paths are a separate app-side change).
+#
+# The static QEMU system binaries (qemu-system-arm / i386 / x86_64 for the
+# arm64 Android host) are NOT rebuilt here: the original custom build recipe is
+# not in this repository. Only run this workflow manually via "Run workflow".
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to upload payloads to"
+        required: false
+        default: core-files
+      skip_smoke_test:
+        description: "Skip the QEMU boot smoke test (faster, less verification)"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  RELEASE_TAG: ${{ inputs.release_tag || 'core-files' }}
+  DEBIAN_SUITE: trixie
+  DEBIAN_MIRROR: http://deb.debian.org/debian
+
+permissions:
+  contents: write
+
+jobs:
+  payloads:
+    name: payload-${{ matrix.id }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: armhf
+            arch: armhf
+            qemu_static: arm
+            kernel_pkg: linux-image-armmp
+            kernel_out: Image-arm
+            initrd_out: initrd-arm.img
+            rootfs_out: rootfs-arm.imgz
+            chroot_out: chroot64-debian-armhf.tar.gz
+            boot_arch: arm
+            boot_machine: virt
+            boot_cpu: cortex-a15
+            boot_console: ttyAMA0
+          - id: i386
+            arch: i386
+            qemu_static: i386
+            kernel_pkg: linux-image-686
+            kernel_out: Image-i386
+            initrd_out: initrd-i386.img
+            rootfs_out: rootfs-i386.imgz
+            chroot_out: chroot64-debian-i386.tar.gz
+            boot_arch: i386
+            boot_machine: pc
+            boot_cpu: qemu32
+            boot_console: ttyS0
+          - id: amd64
+            arch: amd64
+            qemu_static: x86_64
+            kernel_pkg: linux-image-amd64
+            kernel_out: Image-amd64
+            initrd_out: initrd-amd64.img
+            rootfs_out: rootfs-amd64.imgz
+            chroot_out: chroot64-debian-amd64.tar.gz
+            boot_arch: x86_64
+            boot_machine: pc
+            boot_cpu: qemu64
+            boot_console: ttyS0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq debootstrap qemu-user-static binfmt-support \
+            e2fsprogs qemu-system-arm qemu-system-x86 mount
+          sudo systemctl restart systemd-binfmt 2>/dev/null || true
+          sudo update-binfmts --enable 2>/dev/null || true
+
+      - name: Fetch a current debootstrap (knows Debian ${{ env.DEBIAN_SUITE }})
+        run: |
+          DEB=$(curl -fsSL "${{ env.DEBIAN_MIRROR }}/pool/main/d/debootstrap/" \
+            | grep -oE 'debootstrap_[0-9.]+_all\.deb' | sort -V | tail -1)
+          echo "Using debootstrap $DEB"
+          curl -fsSL -o /tmp/debootstrap.deb "${{ env.DEBIAN_MIRROR }}/pool/main/d/debootstrap/$DEB"
+          mkdir -p /tmp/db && dpkg-deb -x /tmp/debootstrap.deb /tmp/db
+          sudo cp -a /tmp/db/usr/share/debootstrap /usr/share/
+          sudo cp /tmp/db/usr/sbin/debootstrap /usr/sbin/debootstrap
+
+      - name: Debootstrap ${{ matrix.id }}
+        run: |
+          set -eux
+          sudo rm -rf /tmp/rootfs && sudo mkdir -p /tmp/rootfs
+          if [ "${{ matrix.id }}" = "amd64" ]; then
+            sudo debootstrap --arch=${{ matrix.arch }} --variant=minbase \
+              --components=main,contrib,non-free-firmware --no-check-gpg \
+              ${{ env.DEBIAN_SUITE }} /tmp/rootfs ${{ env.DEBIAN_MIRROR }}
+          else
+            sudo debootstrap --foreign --arch=${{ matrix.arch }} --variant=minbase \
+              --components=main,contrib,non-free-firmware --no-check-gpg \
+              ${{ env.DEBIAN_SUITE }} /tmp/rootfs ${{ env.DEBIAN_MIRROR }}
+            sudo cp /usr/bin/qemu-${{ matrix.qemu_static }}-static /tmp/rootfs/usr/bin/
+            sudo chroot /tmp/rootfs /debootstrap/debootstrap --second-stage
+          fi
+
+      - name: Install kernel + initramfs, configure serial console
+        run: |
+          set -eux
+          sudo chroot /tmp/rootfs /bin/bash -c '
+            set -eux
+            export DEBIAN_FRONTEND=noninteractive
+            echo "deb ${{ env.DEBIAN_MIRROR }} ${{ env.DEBIAN_SUITE }} main contrib non-free-firmware" > /etc/apt/sources.list
+            apt-get update -qq
+            apt-get install -y -qq initramfs-tools kmod udev systemd systemd-sysv \
+              iproute2 netbase openssh-client ca-certificates
+            apt-get install -y -qq ${{ matrix.kernel_pkg }}
+            # Enable the serial-console getty without a running systemd (symlinks work in a chroot).
+            mkdir -p /etc/systemd/system/getty.target.wants \
+              /etc/systemd/system/serial-getty.target.wants
+            ln -sf /lib/systemd/system/serial-getty@.service \
+              /etc/systemd/system/serial-getty.target.wants/serial-getty@${{ matrix.boot_console }}.service
+            ln -sf /lib/systemd/system/serial-getty@.service \
+              /etc/systemd/system/getty.target.wants/serial-getty@${{ matrix.boot_console }}.service
+            echo "root:opxdemon" | chpasswd
+          '
+
+      - name: Extract kernel + initrd
+        run: |
+          set -eux
+          KERNEL=$(find /tmp/rootfs -type f -name 'vmlinuz-*' | head -1)
+          INITRD=$(find /tmp/rootfs -type f -name 'initrd.img-*' | head -1)
+          test -n "$KERNEL" && test -n "$INITRD"
+          sudo cp -L "$KERNEL" /tmp/${{ matrix.kernel_out }}
+          sudo cp -L "$INITRD" /tmp/${{ matrix.initrd_out }}
+          ls -lh /tmp/${{ matrix.kernel_out }} /tmp/${{ matrix.initrd_out }}
+
+      - name: Build raw ext4 rootfs image
+        run: |
+          set -eux
+          sudo dd if=/dev/zero of=/tmp/rootfs.img bs=1M count=2048 status=none
+          sudo mkfs.ext4 -q -F /tmp/rootfs.img
+          sudo mkdir -p /mnt/r
+          sudo mount -o loop /tmp/rootfs.img /mnt/r
+          sudo cp -a /tmp/rootfs/. /mnt/r/
+          sudo rm -rf /mnt/r/usr/bin/qemu-*-static /mnt/r/debootstrap /mnt/r/var/cache/apt/archives/*.deb
+          sudo umount /mnt/r
+          sudo e2fsck -fy /tmp/rootfs.img >/dev/null 2>&1 || true
+          gzip -1 -f /tmp/rootfs.img
+          mv /tmp/rootfs.img.gz /tmp/${{ matrix.rootfs_out }}
+          ls -lh /tmp/${{ matrix.rootfs_out }}
+
+      - name: Build chroot tarball
+        run: |
+          set -eux
+          sudo rm -rf /tmp/rootfs/usr/bin/qemu-*-static /tmp/rootfs/debootstrap \
+            /tmp/rootfs/var/cache/apt/archives/*.deb
+          sudo tar -czf /tmp/${{ matrix.chroot_out }} -C /tmp/rootfs .
+          ls -lh /tmp/${{ matrix.chroot_out }}
+
+      - name: Boot smoke test (CI only, not a device test)
+        if: ${{ !inputs.skip_smoke_test }}
+        run: |
+          set -eux
+          sudo chmod 644 /tmp/${{ matrix.kernel_out }} /tmp/${{ matrix.initrd_out }} \
+            /tmp/${{ matrix.rootfs_out }}
+          sudo sh -c 'gunzip -c /tmp/${{ matrix.rootfs_out }} > /tmp/smoke.img'
+          sudo chmod 644 /tmp/smoke.img
+          sudo timeout 240 qemu-system-${{ matrix.boot_arch }} \
+            -machine ${{ matrix.boot_machine }} \
+            -m 512 -smp 2 \
+            -kernel /tmp/${{ matrix.kernel_out }} \
+            -initrd /tmp/${{ matrix.initrd_out }} \
+            -append "root=/dev/vda rw rootwait console=${{ matrix.boot_console }} loglevel=3" \
+            -drive file=/tmp/smoke.img,format=raw,if=none,id=drive0 \
+            -device virtio-blk-pci,drive=drive0 \
+            -netdev user,id=net0 -device virtio-net-pci,netdev=net0 \
+            -nographic -no-reboot > /tmp/boot.log 2>&1 || true
+          sudo chmod 644 /tmp/boot.log
+          grep -q 'login:' /tmp/boot.log && echo "BOOT_OK: reached login prompt" \
+            || { echo "BOOT_FAILED — tail of boot log:"; tail -30 /tmp/boot.log; exit 1; }
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sudo chmod 644 /tmp/${{ matrix.kernel_out }} /tmp/${{ matrix.initrd_out }} \
+            /tmp/${{ matrix.rootfs_out }} /tmp/${{ matrix.chroot_out }}
+          gh release upload "${{ env.RELEASE_TAG }}" \
+            /tmp/${{ matrix.kernel_out }} \
+            /tmp/${{ matrix.initrd_out }} \
+            /tmp/${{ matrix.rootfs_out }} \
+            /tmp/${{ matrix.chroot_out }} \
+            --repo "${{ github.repository }}" --clobber
+
+  summary:
+    name: Summarize release state
+    needs: payloads
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: List release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${{ env.RELEASE_TAG }}" --repo "${{ github.repository }}" \
+            --json assets -q '.assets[] | "\(.name) (\(.size) bytes)"'
