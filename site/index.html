@@ -409,6 +409,139 @@
 
   .warn { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.28); color: #fcd34d; border-radius: 12px; padding: 12px 18px; font-size: .82rem; margin-top: 18px; }
 
+  /* ================= PRELOADER =================
+     Premium loading screen — logo pulse + progress bar, fades out on load.
+     প্রিমিয়াম লোডিং স্ক্রিন। */
+  #preloader {
+    position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(120% 120% at 50% 0%, #0a0d16, #05060a 70%);
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+  #preloader.hide { opacity: 0; visibility: hidden; }
+  .pre-logo {
+    width: 74px; height: 74px; border-radius: 22px; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 40px rgba(34,211,238,.35); animation: prePulse 1.1s ease-in-out infinite;
+  }
+  .pre-logo svg { width: 40px; height: 40px; }
+  .pre-bar { width: 170px; height: 3px; margin-top: 26px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.08); }
+  .pre-bar i { display: block; height: 100%; width: 40%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-3)); animation: preSlide 1.1s ease-in-out infinite; }
+  @keyframes prePulse { 0%,100% { transform: scale(1); box-shadow: 0 10px 40px rgba(34,211,238,.35); } 50% { transform: scale(1.06); box-shadow: 0 10px 60px rgba(34,211,238,.5); } }
+  @keyframes preSlide { 0% { transform: translateX(-130%); } 100% { transform: translateX(430%); } }
+
+  /* ================= SCROLL PROGRESS + BACK-TO-TOP =================
+     Top gradient progress bar + floating back-to-top button.
+     উপরে স্ক্রল-প্রগ্রেস বার + নিচে ফ্লোটিং ব্যাক-টু-টপ বাটন। */
+  #scrollProgress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    box-shadow: 0 0 12px rgba(34,211,238,.6); }
+  #backTop {
+    position: fixed; right: 22px; bottom: 22px; z-index: 90; width: 46px; height: 46px; border-radius: 14px;
+    border: 1px solid rgba(34,211,238,.35); background: rgba(5,6,10,.85); color: var(--accent);
+    display: grid; place-items: center; cursor: pointer; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    opacity: 0; pointer-events: none; transform: translateY(12px); transition: .3s;
+  }
+  #backTop.show { opacity: 1; pointer-events: auto; transform: none; }
+  #backTop:hover { background: rgba(34,211,238,.12); box-shadow: 0 8px 30px rgba(34,211,238,.3); }
+  #backTop svg { width: 20px; height: 20px; }
+
+  /* ================= HERO GRID + 3D PHONE MOCKUP =================
+     Two-column hero: copy on the left, animated 3D phone on the right.
+     The mockup is a pure CSS/JS "video" — no video files used.
+     হিরো দু-কলাম: বামে টেক্সট, ডানে 3D ফোন মকআপ (কোড দিয়ে বানানো ভিডিও-স্টাইল ডেমো)। */
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+  .hero-right { position: relative; display: grid; place-items: center; perspective: 1400px; animation: rise 1s .3s cubic-bezier(.2,.7,.2,1) both; }
+
+  .phone-wrap { width: min(330px, 80vw); transform-style: preserve-3d; animation: phoneFloat 6.5s ease-in-out infinite; }
+  @keyframes phoneFloat {
+    0%,100% { transform: translateY(0) rotateY(-3deg) rotateX(1.5deg); }
+    50%     { transform: translateY(-14px) rotateY(3deg) rotateX(-1.5deg); }
+  }
+  .phone3d { position: relative; transform-style: preserve-3d; transition: transform .25s ease-out; will-change: transform; }
+
+  .phone {
+    position: relative; border-radius: 46px; padding: 12px;
+    background: linear-gradient(160deg, #1c2438, #0a0e19 62%);
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 34px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(129,140,248,.12), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .phone::after { content: ""; position: absolute; inset: 0; border-radius: 46px; pointer-events: none;
+    background: radial-gradient(130% 60% at 50% 0%, rgba(34,211,238,.16), transparent 62%); }
+  .phone-frame { position: relative; border-radius: 35px; overflow: hidden; background: #05060a; aspect-ratio: 9/19.2; }
+  .phone-notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 92px; height: 22px;
+    border-radius: 999px; background: #000; z-index: 3; border: 1px solid rgba(255,255,255,.06); }
+  .phone-screen { height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 40px 14px 12px; }
+
+  .screen-top { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
+  .screen-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .screen-dot.r { background: #f87171; } .screen-dot.y { background: #fbbf24; } .screen-dot.g { background: #34d399; }
+  .screen-title { margin-left: auto; font-family: var(--font-mono); font-size: .6rem; color: var(--muted-2); letter-spacing: .04em; }
+
+  .screen-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-family: var(--font-mono); font-size: .58rem; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid rgba(34,211,238,.3); color: var(--accent); background: rgba(34,211,238,.08); }
+
+  .term {
+    flex: 1; min-height: 118px; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px; padding: 10px 11px; font-family: var(--font-mono); font-size: .56rem; line-height: 1.75;
+    color: #c7d2e6; overflow: hidden; box-shadow: inset 0 0 24px rgba(0,0,0,.5);
+  }
+  .term .prompt { color: var(--green); }
+  .term .ok { color: var(--green); }
+  .term .dim { color: #55637e; }
+  .term .typing { white-space: nowrap; }
+  .caret { display: inline-block; width: 7px; height: 12px; background: var(--accent); margin-left: 2px;
+    vertical-align: -2px; animation: caretBlink 1s step-end infinite; }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+
+  .radar { position: relative; height: 62px; border-radius: 50%; overflow: hidden;
+    background: radial-gradient(circle, rgba(34,211,238,.12), rgba(34,211,238,.03) 58%, transparent 72%);
+    border: 1px solid rgba(34,211,238,.22); }
+  .radar::before { content: ""; position: absolute; inset: 25%; border: 1px dashed rgba(34,211,238,.28); border-radius: 50%; }
+  .radar::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px;
+    background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
+  .radar-sweep { position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 0deg, rgba(34,211,238,.55), transparent 28%); animation: radarSpin 2.6s linear infinite; }
+  @keyframes radarSpin { to { transform: rotate(360deg); } }
+  .radar-blip { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 8px var(--green); animation: blip 2.6s ease-in-out infinite; }
+  .radar-blip.b1 { top: 24%; left: 56%; animation-delay: .4s; }
+  .radar-blip.b2 { top: 58%; left: 28%; animation-delay: 1.2s; }
+  .radar-blip.b3 { top: 60%; left: 70%; animation-delay: 1.9s; }
+  @keyframes blip { 0%,100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
+
+  .screen-footer { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: .56rem; color: var(--muted-2); }
+  .screen-footer .live { display: inline-flex; align-items: center; gap: 6px; color: var(--green); }
+  .screen-footer .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+
+  /* Floating notification chips around the phone */
+  .float-chip {
+    position: absolute; z-index: 6; display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-body); font-size: .72rem; font-weight: 600; color: var(--text);
+    background: rgba(10,13,22,.9); border: 1px solid rgba(255,255,255,.1); padding: 9px 14px; border-radius: 14px;
+    box-shadow: 0 16px 44px rgba(0,0,0,.5); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    animation: chipFloat 4.6s ease-in-out infinite;
+  }
+  .float-chip b { color: var(--green); font-weight: 700; }
+  .chip-1 { top: 8%; left: -16%; animation-delay: .2s; }
+  .chip-2 { bottom: 22%; right: -18%; animation-delay: 1.2s; }
+  .chip-3 { bottom: -5%; left: 2%; animation-delay: 2.1s; }
+  @keyframes chipFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+  /* Subtle 3D tilt on cards (driven by JS --rx / --ry variables) */
+  .tilt { transition: transform .22s ease-out, border-color .35s, box-shadow .35s; will-change: transform; }
+  .tilt:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px); }
+
+  /* Mobile / tablet: stack the hero, shrink the phone */
+  @media (max-width: 980px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 44px; }
+    .phone-wrap { width: min(300px, 76vw); }
+    .chip-1 { left: -6%; } .chip-2 { right: -6%; }
+  }
+  @media (max-width: 560px) {
+    .chip-1, .chip-2, .chip-3 { display: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     html { scroll-behavior: auto; }
@@ -416,6 +549,17 @@
 </style>
 </head>
 <body>
+
+<!-- Premium preloader — fades out after the page settles
+     প্রিমিয়াম লোডিং স্ক্রিন, পেজ লোড হলে ফেড হয়ে যায় -->
+<div id="preloader" aria-hidden="true">
+  <div class="pre-logo">
+    <svg viewBox="0 0 32 32" style="width:40px;height:40px"><path d="M16 4l10 5v9c0 5.5-4.2 9.6-10 11-5.8-1.4-10-5.5-10-11V9l10-5z" fill="url(#plg)"/><defs><linearGradient id="plg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs></svg>
+  </div>
+  <div class="pre-bar"><i></i></div>
+</div>
+
+<div id="scrollProgress" aria-hidden="true"></div>
 
 <canvas id="particles" aria-hidden="true"></canvas>
 <div class="aurora" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
@@ -447,25 +591,76 @@
   <!-- ================= HERO ================= -->
   <header>
     <div class="container">
-      <span class="hero-badge"><span class="dot"></span> Live from the <span class="ver" id="badgeVersion">core-files</span> release</span>
-      <h1>Security testing,<br><span class="grad" id="heroTitle">reimagined for Android.</span></h1>
-      <p class="hero-sub">OPXdemon turns your phone into a complete <b>mobile pentest lab</b> — a real Debian environment via <b>rooted chroot</b>, a full Linux VM with <b>rootless QEMU</b>, or an interactive <b>Tour Mode</b> that explores everything without installing a thing.</p>
-      <div class="hero-cta">
-        <a class="btn btn-download" id="downloadBtn" href="app-debug.apk">
-          <span class="shine" aria-hidden="true"></span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="downloadLabel">Detecting latest release…</span>
-        </a>
-        <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-          View source
-        </a>
-      </div>
-      <div class="hero-meta">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Free &amp; open source</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.7-8 10-4.5-1.3-8-5-8-10V6l8-4z"/></svg>arm64 · armhf · i386 · amd64</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/></svg>3 setup modes</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span id="metaVersion">v1.3</span></span>
+      <div class="hero-grid">
+        <div class="hero-left">
+          <span class="hero-badge"><span class="dot"></span> Live from the <span class="ver" id="badgeVersion">core-files</span> release</span>
+          <h1>Security testing,<br><span class="grad" id="heroTitle">reimagined for Android.</span></h1>
+          <p class="hero-sub">OPXdemon turns your phone into a complete <b>mobile pentest lab</b> — a real Debian environment via <b>rooted chroot</b>, a full Linux VM with <b>rootless QEMU</b>, or an interactive <b>Tour Mode</b> that explores everything without installing a thing.</p>
+          <div class="hero-cta">
+            <a class="btn btn-download" id="downloadBtn" href="app-debug.apk">
+              <span class="shine" aria-hidden="true"></span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span id="downloadLabel">Detecting latest release…</span>
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              View source
+            </a>
+          </div>
+          <div class="hero-meta">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Free &amp; open source</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.7-8 10-4.5-1.3-8-5-8-10V6l8-4z"/></svg>arm64 · armhf · i386 · amd64</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/></svg>3 setup modes</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span id="metaVersion">v1.3</span></span>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <!-- Animated 3D phone mockup — a pure CSS/JS "video" of the app running
+               (terminal typing, live radar, floating chips). No video files.
+               3D ফোন মকআপ — কোড দিয়ে বানানো ভিডিও-স্টাইল ডেমো: টার্মিনাল টাইপিং, লাইভ রাডার। -->
+          <div class="phone-wrap">
+            <div class="phone3d" id="phone3d">
+              <div class="phone">
+                <div class="phone-frame">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen">
+                    <div class="screen-top">
+                      <span class="screen-dot r"></span><span class="screen-dot y"></span><span class="screen-dot g"></span>
+                      <span class="screen-title">OPXdemon · v1.3</span>
+                    </div>
+                    <div class="screen-chips">
+                      <span class="chip">arm64</span><span class="chip">Rooted</span><span class="chip">wlan0mon</span>
+                    </div>
+                    <div class="term" aria-hidden="true">
+                      <div><span class="prompt">root@opx:~$</span> <span class="ok">./engine boot</span></div>
+                      <div class="dim">[ok] Debian trixie chroot mounted</div>
+                      <div class="dim">[ok] wlan0 → monitor mode</div>
+                      <div class="dim">PORT&nbsp;&nbsp;STATE&nbsp;&nbsp;SERVICE</div>
+                      <div><span class="ok">22/tcp</span>&nbsp;&nbsp;open&nbsp;&nbsp;ssh</div>
+                      <div><span class="ok">80/tcp</span>&nbsp;&nbsp;open&nbsp;&nbsp;http</div>
+                      <div><span class="ok">443/tcp</span>&nbsp;&nbsp;open&nbsp;&nbsp;https</div>
+                      <div class="typing"><span class="prompt">root@opx:~$</span> <span id="typingText"></span><span class="caret"></span></div>
+                    </div>
+                    <div class="radar" aria-hidden="true">
+                      <div class="radar-sweep"></div>
+                      <div class="radar-blip b1"></div>
+                      <div class="radar-blip b2"></div>
+                      <div class="radar-blip b3"></div>
+                    </div>
+                    <div class="screen-footer">
+                      <span>▲ 12.4 Mbps</span>
+                      <span class="live"><i></i> engine online</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="float-chip chip-1"><b>✓</b> Handshake captured</div>
+              <div class="float-chip chip-2"><b>◇</b> QEMU VM booted</div>
+              <div class="float-chip chip-3"><b>●</b> Monitor mode ON</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Hero stats. Counters are filled from real GitHub data at runtime
@@ -1141,7 +1336,88 @@
   /* Kick off the release sync: fills the download buttons, the changelog and the version dropdown. */
   fetchReleases();
 
+  /* ================= PREMIUM FX =================
+     Preloader, scroll progress bar, back-to-top, typing terminal, 3D tilts.
+     প্রিলোডার, স্ক্রল-প্রগ্রেস, ব্যাক-টু-টপ, টাইপিং টার্মিনাল, 3D টিল্ট। */
+
+  /* Hide the preloader shortly after load (fallback timer, robust offline too). */
+  var preloader = document.getElementById("preloader");
+  setTimeout(function () { preloader.classList.add("hide"); }, 1100);
+
+  /* Top scroll-progress bar + back-to-top button visibility. */
+  var progressBar = document.getElementById("scrollProgress");
+  var backTop = document.getElementById("backTop");
+  function onScrollFx() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + "%";
+    backTop.classList.toggle("show", window.scrollY > 700);
+  }
+  window.addEventListener("scroll", onScrollFx, { passive: true });
+  onScrollFx();
+  if (backTop) backTop.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  /* Terminal "typing" effect inside the phone mockup — a looping video-like demo.
+     ফোন মকআপের টার্মিনালে লুপ করা টাইপিং ইফেক্ট (ভিডিও-স্টাইল ডেমো)। */
+  var typingEl = document.getElementById("typingText");
+  if (typingEl && !reduced) {
+    var commands = ["airmon-ng start wlan0", "airodump-ng wlan0mon", "nmap -sV 192.168.1.1", "hashcat -m 22000 cap.hc2200"];
+    var cmdIdx = 0, charIdx = 0, deleting = false;
+    (function typeLoop() {
+      var cmd = commands[cmdIdx];
+      if (!deleting) {
+        charIdx++;
+        typingEl.textContent = cmd.slice(0, charIdx);
+        if (charIdx >= cmd.length) { deleting = true; setTimeout(typeLoop, 1700); return; }
+        setTimeout(typeLoop, 55 + Math.random() * 40);
+      } else {
+        charIdx--;
+        typingEl.textContent = cmd.slice(0, charIdx);
+        if (charIdx <= 0) { deleting = false; cmdIdx = (cmdIdx + 1) % commands.length; }
+        setTimeout(typeLoop, 22);
+      }
+    })();
+  }
+
+  /* 3D tilt: phone mockup follows the mouse; feature cards get a subtle tilt.
+     3D টিল্ট: ফোন মকআপ মাউস ফলো করে, কার্ডগুলো হালকা টিল্ট হয়। */
+  var phone3d = document.getElementById("phone3d");
+  var heroRight = document.querySelector(".hero-right");
+  if (phone3d && heroRight && matchMedia("(hover:hover)").matches && !reduced) {
+    heroRight.addEventListener("mousemove", function (e) {
+      var r = heroRight.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - .5;
+      var py = (e.clientY - r.top) / r.height - .5;
+      phone3d.style.transform = "rotateY(" + (px * 22) + "deg) rotateX(" + (-py * 18) + "deg)";
+    });
+    heroRight.addEventListener("mouseleave", function () { phone3d.style.transform = "none"; });
+  }
+
+  /* Subtle 3D tilt on feature cards (rotateX/rotateY driven by --rx/--ry). */
+  document.querySelectorAll(".grid-3 .card, .mode-card, .arch-card").forEach(function (card) {
+    if (!matchMedia("(hover:hover)").matches || reduced) return;
+    card.classList.add("tilt");
+    card.addEventListener("mousemove", function (e) {
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - .5;
+      var py = (e.clientY - r.top) / r.height - .5;
+      card.style.setProperty("--rx", (py * -5).toFixed(2) + "deg");
+      card.style.setProperty("--ry", (px * 6).toFixed(2) + "deg");
+    });
+    card.addEventListener("mouseleave", function () {
+      card.style.setProperty("--rx", "0deg");
+      card.style.setProperty("--ry", "0deg");
+    });
+  });
+
 })();
 </script>
+
+<!-- Floating back-to-top button (JS toggles .show)
+     ফ্লোটিং ব্যাক-টু-টপ বাটন -->
+<button id="backTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
 </body>
 </html>
