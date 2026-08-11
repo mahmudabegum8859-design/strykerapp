@@ -28,39 +28,15 @@ if [ ! -f "$APK" ]; then
   exit 1
 fi
 
-# Small index page with a direct download link.
-cat > "$APK_DIR/index.html" <<'HTML'
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OPXdemon — APK download</title>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #0f1115; color: #e6e8ee;
-           display: grid; place-items: center; min-height: 100vh; margin: 0; }
-    .card { max-width: 520px; padding: 2.5rem; border: 1px solid #262b36; border-radius: 16px;
-            background: #161a22; text-align: center; }
-    h1 { margin: 0 0 .5rem; font-size: 1.4rem; }
-    p { color: #9aa3b2; margin: 0 0 1.5rem; font-size: .95rem; }
-    a.dl { display: inline-block; background: #e11d48; color: #fff; text-decoration: none;
-           padding: .8rem 1.6rem; border-radius: 10px; font-weight: 600; }
-    a.dl:hover { background: #f0305a; }
-    code { background: #0f1115; padding: .25rem .5rem; border-radius: 6px; font-size: .8rem; }
-    .meta { margin-top: 1.5rem; font-size: .8rem; color: #6b7280; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>OPXdemon 1.3 — debug build</h1>
-    <p>Output of <code>./gradlew assembleDebug</code>. Download the APK and sideload it
-       on a <strong>rooted</strong> arm64 Android device (min SDK 24).</p>
-    <a class="dl" href="app-debug.apk" download>Download app-debug.apk</a>
-    <p class="meta">Package com.opxdemon · versionCode 3 · GPLv3</p>
-  </div>
-</body>
-</html>
-HTML
+# Professional landing/download page (auto-detects the latest release from GitHub).
+SITE="site/index.html"
+if [ -f "$SITE" ]; then
+  cp "$SITE" "$APK_DIR/index.html"
+  echo "[serve-apk] Serving site/index.html (auto-detects latest GitHub release)"
+else
+  echo "[serve-apk] WARNING: $SITE missing — fallback page without styling"
+  printf '<!doctype html><meta charset="utf-8"><title>OPXdemon</title><h1>OPXdemon</h1><p><a href="app-debug.apk">Download app-debug.apk</a></p>' > "$APK_DIR/index.html"
+fi
 
 echo "[serve-apk] Serving $APK_DIR on 0.0.0.0:$PORT (APK: $APK)"
 if command -v python3 >/dev/null 2>&1; then

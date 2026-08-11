@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OPXdemon — Android Mobile Pentest Suite | Rooted + Rootless + Tour Mode</title>
+<meta name="description" content="OPXdemon is a free, open-source mobile security testing suite for Android. Debian chroot (rooted), QEMU VM (rootless), and a full Tour Mode. Multi-architecture: arm64, armhf, i386, amd64. By OP AMINUL FF / OPX.">
+<meta name="keywords" content="OPXdemon, mobile pentest, Android security, rooted, rootless, QEMU VM, Debian chroot, WiFi attacks, nmap, metasploit, handshake capture, HID attacks, tour mode, arm64, i386, amd64">
+<meta name="author" content="OP AMINUL FF (OPX)">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://github.com/mahmudabegum8859-design/strykerapp">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OPXdemon">
+<meta property="og:title" content="OPXdemon — Android Mobile Pentest Suite">
+<meta property="og:description" content="Free & open-source security testing suite for Android. Rooted chroot, rootless QEMU VM, and Tour Mode. Multi-architecture payloads. By OP AMINUL FF / OPX.">
+<meta property="og:url" content="https://github.com/mahmudabegum8859-design/strykerapp">
+<meta property="og:image" content="https://raw.githubusercontent.com/mahmudabegum8859-design/strykerapp/main/site/og-cover.svg">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OPXdemon — Android Mobile Pentest Suite">
+<meta name="twitter:description" content="Free & open-source security testing suite for Android. Rooted chroot, rootless QEMU VM, Tour Mode. By OP AMINUL FF / OPX.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/mahmudabegum8859-design/strykerapp/main/site/og-cover.svg">
+<meta name="theme-color" content="#05060a">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305060a'/%3E%3Cpath d='M16 4l10 5v9c0 5.5-4.2 9.6-10 11-5.8-1.4-10-5.5-10-11V9l10-5z' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Structured data (version patched at runtime) -->
+<script type="application/ld+json" id="ld-software">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OPXdemon",
+  "alternateName": "OPXdemon Mobile Pentest Suite",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Android",
+  "softwareVersion": "1.3",
+  "fileFormat": "application/vnd.android.package-archive",
+  "downloadUrl": "https://github.com/mahmudabegum8859-design/strykerapp/releases",
+  "description": "Free and open-source mobile security testing suite for Android with rooted Debian chroot, rootless QEMU VM and Tour Mode.",
+  "author": { "@type": "Person", "name": "OP AMINUL FF" },
+  "publisher": { "@type": "Organization", "name": "OPX" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html"
+}
+</script>
+
+<style>
+  :root {
+    --bg: #05060a;
+    --bg-2: #0a0d16;
+    --card: rgba(255,255,255,.035);
+    --card-border: rgba(255,255,255,.08);
+    --text: #e8ecf4;
+    --muted: #9aa5b8;
+    --muted-2: #6b7689;
+    --accent: #22d3ee;
+    --accent-2: #818cf8;
+    --accent-3: #e879f9;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --radius: 18px;
+    --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(34,211,238,.35); color: #fff; }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #1c2333; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3350; }
+
+  a { color: var(--accent); text-decoration: none; }
+  img, svg { max-width: 100%; display: block; }
+
+  /* ---------- background layers ---------- */
+  #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+  .aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(90px); opacity: .5; }
+  .aurora .orb { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+  .orb-1 { width: 46vw; height: 46vw; left: -12vw; top: -14vw;
+           background: radial-gradient(circle at 30% 30%, rgba(34,211,238,.55), transparent 65%);
+           animation: drift1 26s ease-in-out infinite alternate; }
+  .orb-2 { width: 40vw; height: 40vw; right: -10vw; top: 6vh;
+           background: radial-gradient(circle at 60% 40%, rgba(129,140,248,.5), transparent 65%);
+           animation: drift2 30s ease-in-out infinite alternate; }
+  .orb-3 { width: 38vw; height: 38vw; left: 28vw; bottom: -18vw;
+           background: radial-gradient(circle at 50% 50%, rgba(232,121,249,.38), transparent 65%);
+           animation: drift3 34s ease-in-out infinite alternate; }
+
+  @keyframes drift1 { to { transform: translate(9vw, 7vh) scale(1.15); } }
+  @keyframes drift2 { to { transform: translate(-8vw, 10vh) scale(.9); } }
+  @keyframes drift3 { to { transform: translate(6vw, -9vh) scale(1.2); } }
+
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  main, nav, footer { position: relative; z-index: 2; }
+
+  .container { width: min(1140px, 92%); margin: 0 auto; }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    transition: background .35s, border-color .35s, backdrop-filter .35s;
+    border-bottom: 1px solid transparent;
+  }
+  nav.scrolled {
+    background: rgba(5,6,10,.72);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    border-bottom-color: rgba(255,255,255,.07);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.06rem; color: var(--text); }
+  .logo svg { width: 30px; height: 30px; }
+  .nav-links { display: flex; align-items: center; gap: 26px; }
+  .nav-links a { color: var(--muted); font-size: .88rem; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #04121a !important; font-weight: 700; font-size: .86rem;
+    padding: 9px 18px; border-radius: 999px; transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 24px rgba(34,211,238,.28);
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(34,211,238,.4); }
+  .nav-burger { display: none; background: none; border: 0; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column; gap: 4px;
+                 background: rgba(5,6,10,.96); padding: 14px 6vw 20px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .nav-links.open { display: flex; }
+    .nav-burger { display: block; }
+  }
+
+  /* ---------- hero ---------- */
+  header { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: 120px 0 60px; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+    padding: 7px 16px; border-radius: 999px; font-size: .82rem; font-weight: 600;
+    color: #bfe9f5; background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.25);
+    margin-bottom: 26px; animation: rise .8s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); animation: pulse 2s infinite; }
+  .hero-badge .ver { font-family: var(--font-mono); color: var(--accent); }
+
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.7); } }
+
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 7.2vw, 5.2rem);
+    line-height: 1.04; letter-spacing: -.02em; margin-bottom: 22px; animation: rise .9s .08s cubic-bezier(.2,.7,.2,1) both;
+  }
+  h1 .grad {
+    background: linear-gradient(100deg, var(--accent) 10%, var(--accent-2) 50%, var(--accent-3) 90%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 7s linear infinite;
+  }
+  @keyframes shimmer { to { background-position: -220% 0; } }
+
+  .hero-sub {
+    max-width: 640px; color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.18rem); margin-bottom: 34px;
+    animation: rise .9s .16s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .hero-sub b { color: var(--text); }
+
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; animation: rise .9s .24s cubic-bezier(.2,.7,.2,1) both; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer;
+    font-family: var(--font-body); font-size: .98rem; font-weight: 700; border-radius: 14px;
+    padding: 16px 28px; transition: transform .2s, box-shadow .2s, filter .2s; position: relative; overflow: hidden;
+  }
+  .btn-download {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2) 55%, var(--accent-3));
+    color: #04121a; box-shadow: 0 10px 40px rgba(34,211,238,.35);
+  }
+  .btn-download:hover { transform: translateY(-3px); box-shadow: 0 16px 54px rgba(129,140,248,.45); }
+  .btn-download .shine { position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+    transform: skewX(-20deg); animation: shine 3.2s ease-in-out infinite; }
+  @keyframes shine { 0% { left: -60%; } 55%, 100% { left: 130%; } }
+  .btn-ghost {
+    background: rgba(255,255,255,.05); color: var(--text); border: 1px solid rgba(255,255,255,.12);
+  }
+  .btn-ghost:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.09); }
+  .btn .spinner { width: 16px; height: 16px; border: 2px solid rgba(4,18,26,.35); border-top-color: #04121a; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 30px; color: var(--muted-2); font-size: .85rem; animation: rise .9s .32s cubic-bezier(.2,.7,.2,1) both; }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
+  .hero-meta svg { width: 15px; height: 15px; stroke: var(--accent-2); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- stats ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 64px; animation: rise 1s .4s cubic-bezier(.2,.7,.2,1) both; }
+  .stat {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 22px 18px; text-align: center; position: relative; overflow: hidden;
+    transition: transform .3s, border-color .3s;
+  }
+  .stat::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 90% at 50% 0%, rgba(34,211,238,.1), transparent 70%); opacity: 0; transition: opacity .3s; }
+  .stat:hover { transform: translateY(-4px); border-color: rgba(34,211,238,.35); }
+  .stat:hover::before { opacity: 1; }
+  .stat b { display: block; font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--text); position: relative; }
+  .stat b em { font-style: normal; color: var(--accent); }
+  .stat span { display: block; margin-top: 4px; font-size: .8rem; color: var(--muted-2); position: relative; }
+
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- marquee ---------- */
+  .marquee { margin: 30px 0 0; padding: 16px 0; border-top: 1px solid rgba(255,255,255,.06); border-bottom: 1px solid rgba(255,255,255,.06); overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .marquee-track { display: flex; gap: 46px; width: max-content; animation: scroll-x 34s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-track span { font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--muted); white-space: nowrap; }
+  .marquee-track span::before { content: "◆"; color: var(--accent); margin-right: 14px; font-size: .6rem; vertical-align: middle; }
+  @keyframes scroll-x { to { transform: translateX(-50%); } }
+
+  /* ---------- sections ---------- */
+  section { padding: 96px 0; }
+  .sec-head { text-align: center; max-width: 720px; margin: 0 auto 56px; }
+  .sec-eyebrow {
+    display: inline-block; font-family: var(--font-mono); font-size: .76rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; border: 1px solid rgba(34,211,238,.3); padding: 6px 14px; border-radius: 999px;
+    background: rgba(34,211,238,.06);
+  }
+  .sec-head h2 { font-family: var(--font-display); font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -.015em; line-height: 1.1; }
+  .sec-head h2 .grad { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sec-head p { color: var(--muted); margin-top: 14px; font-size: 1rem; }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(34px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- feature cards ---------- */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid-3, .grid-2, .grid-4 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 26px 24px; position: relative; overflow: hidden;
+    transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .35s, box-shadow .35s;
+  }
+  .card::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+    background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 50%), rgba(34,211,238,.12), transparent 45%);
+    transition: opacity .35s;
+  }
+  .card:hover { transform: translateY(-6px); border-color: rgba(34,211,238,.3); box-shadow: 0 18px 44px rgba(0,0,0,.45); }
+  .card:hover::after { opacity: 1; }
+
+  .card .ico {
+    width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(34,211,238,.16), rgba(129,140,248,.16));
+    border: 1px solid rgba(34,211,238,.25);
+  }
+  .card .ico svg { width: 23px; height: 23px; stroke: var(--accent); }
+  .card h3 { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: .9rem; }
+  .card .tag { display: inline-block; margin-top: 14px; font-family: var(--font-mono); font-size: .7rem; color: var(--accent-2); border: 1px solid rgba(129,140,248,.3); padding: 3px 10px; border-radius: 999px; }
+
+  /* ---------- mode cards ---------- */
+  .mode-card { text-align: left; padding: 30px 26px; }
+  .mode-card .mode-icon { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 18px; background: rgba(255,255,255,.05); border: 1px solid var(--card-border); }
+  .mode-card .mode-icon svg { width: 28px; height: 28px; stroke: var(--accent); }
+  .mode-card[data-accent="green"] .mode-icon { background: rgba(52,211,153,.1); border-color: rgba(52,211,153,.3); }
+  .mode-card[data-accent="green"] .mode-icon svg { stroke: var(--green); }
+  .mode-card[data-accent="violet"] .mode-icon { background: rgba(129,140,248,.12); border-color: rgba(129,140,248,.32); }
+  .mode-card[data-accent="violet"] .mode-icon svg { stroke: var(--accent-2); }
+  .mode-card h3 { font-size: 1.2rem; }
+  .mode-card .mode-list { margin-top: 12px; display: grid; gap: 7px; }
+  .mode-card .mode-list li { list-style: none; color: var(--muted); font-size: .88rem; display: flex; gap: 9px; align-items: flex-start; }
+  .mode-card .mode-list li::before { content: "✓"; color: var(--green); font-weight: 700; }
+  .mode-card .badge { position: absolute; top: 18px; right: 18px; font-family: var(--font-mono); font-size: .68rem; padding: 4px 10px; border-radius: 999px; }
+
+  /* ---------- arch cards ---------- */
+  .arch-card { text-align: center; padding: 30px 20px; }
+  .arch-card .arch-name { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 600; color: var(--text); }
+  .arch-card .arch-desc { font-size: .8rem; color: var(--muted-2); margin-top: 6px; }
+  .arch-card .arch-badge { display: inline-block; margin-top: 14px; font-family: var(--font-mono); font-size: .7rem; padding: 4px 12px; border-radius: 999px; }
+  .arch-card .arch-badge.ok { color: var(--green); background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); }
+  .arch-card .arch-badge.exp { color: var(--amber); background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.3); }
+
+  /* ---------- downloads ---------- */
+  .dl-panel { background: linear-gradient(160deg, rgba(34,211,238,.07), rgba(129,140,248,.07)), var(--card); border: 1px solid rgba(129,140,248,.25); border-radius: 24px; padding: 42px 36px; text-align: center; position: relative; overflow: hidden; }
+  .dl-panel::before { content: ""; position: absolute; inset: -40% -20%; background: conic-gradient(from 0deg, transparent 0deg, rgba(34,211,238,.14) 60deg, transparent 120deg); animation: spin-slow 9s linear infinite; }
+  .dl-panel > * { position: relative; }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .dl-panel h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; }
+  .dl-panel .dl-sub { color: var(--muted); margin-bottom: 26px; }
+  .dl-files { margin-top: 26px; text-align: left; display: grid; gap: 8px; }
+  .dl-files summary { cursor: pointer; color: var(--accent-2); font-size: .9rem; font-weight: 600; }
+  .dl-files .files-list { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .file-chip { font-family: var(--font-mono); font-size: .72rem; color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--card-border); padding: 5px 12px; border-radius: 999px; }
+
+  /* ---------- changelog ---------- */
+  .changelog { display: grid; gap: 14px; }
+  .cl-latest { border: 1px solid rgba(34,211,238,.35); background: linear-gradient(160deg, rgba(34,211,238,.08), rgba(129,140,248,.06)), var(--card); }
+  .cl-item { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px 26px; transition: transform .3s, border-color .3s; }
+  .cl-item:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.16); }
+  .cl-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .cl-ver { font-family: var(--font-mono); font-weight: 700; font-size: 1.02rem; color: var(--accent); }
+  .cl-date { font-size: .8rem; color: var(--muted-2); }
+  .cl-tag { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: rgba(52,211,153,.1); color: var(--green); border: 1px solid rgba(52,211,153,.3); }
+  .cl-body { color: var(--muted); font-size: .92rem; white-space: pre-wrap; }
+  .cl-body h1, .cl-body h2, .cl-body h3 { color: var(--text); font-size: 1rem; margin: 10px 0 4px; font-family: var(--font-display); }
+  .cl-body ul { margin: 6px 0 6px 18px; }
+  .cl-body li { margin: 3px 0; }
+  .cl-body code { font-family: var(--font-mono); font-size: .82em; background: rgba(255,255,255,.07); padding: 1px 6px; border-radius: 5px; }
+  .cl-body a { color: var(--accent); }
+  .cl-loading, .cl-error { text-align: center; color: var(--muted); padding: 30px; font-size: .9rem; }
+
+  /* ---------- specs ---------- */
+  .spec-table { border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; }
+  .spec-row { display: grid; grid-template-columns: 220px 1fr; border-bottom: 1px solid var(--card-border); }
+  .spec-row:last-child { border-bottom: 0; }
+  .spec-row dt { padding: 15px 20px; color: var(--muted-2); font-size: .86rem; background: rgba(255,255,255,.02); font-family: var(--font-mono); font-size: .8rem; }
+  .spec-row dd { padding: 15px 20px; color: var(--text); font-size: .92rem; word-break: break-word; }
+  @media (max-width: 640px) { .spec-row { grid-template-columns: 1fr; } .spec-row dt { padding: 10px 16px 0; } .spec-row dd { padding: 6px 16px 12px; } }
+
+  /* ---------- FAQ ---------- */
+  .faq { display: grid; gap: 12px; max-width: 800px; margin: 0 auto; }
+  .faq-item { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; }
+  .faq-item summary { list-style: none; cursor: pointer; padding: 18px 22px; font-weight: 600; font-size: .95rem; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; font-size: 1.3rem; color: var(--accent); transition: transform .25s; }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item .faq-body { padding: 0 22px 18px; color: var(--muted); font-size: .9rem; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid rgba(255,255,255,.06); padding: 44px 0 36px; margin-top: 40px; }
+  .foot-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 26px; align-items: center; }
+  .foot-note { color: var(--muted-2); font-size: .8rem; margin-top: 20px; text-align: center; }
+  .foot-links { display: flex; gap: 20px; }
+  .foot-links a { color: var(--muted); font-size: .86rem; }
+  .foot-links a:hover { color: var(--text); }
+
+  .warn { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.28); color: #fcd34d; border-radius: 12px; padding: 12px 18px; font-size: .82rem; margin-top: 18px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="grid-overlay" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ================= NAV ================= -->
+<nav id="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#top" aria-label="OPXdemon home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4l10 5v9c0 5.5-4.2 9.6-10 11-5.8-1.4-10-5.5-10-11V9l10-5z" fill="url(#lg)"/><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs></svg>
+      OPXdemon
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#modes">Modes</a>
+      <a href="#arch">Architectures</a>
+      <a href="#download">Download</a>
+      <a href="#changelog">Changelog</a>
+      <a href="#about">About</a>
+      <a class="nav-cta" id="navDownload" href="app-debug.apk">Download APK</a>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <header>
+    <div class="container">
+      <span class="hero-badge"><span class="dot"></span> Live from the <span class="ver" id="badgeVersion">core-files</span> release</span>
+      <h1>Security testing,<br><span class="grad" id="heroTitle">reimagined for Android.</span></h1>
+      <p class="hero-sub">OPXdemon turns your phone into a complete <b>mobile pentest lab</b> — a real Debian environment via <b>rooted chroot</b>, a full Linux VM with <b>rootless QEMU</b>, or an interactive <b>Tour Mode</b> that explores everything without installing a thing.</p>
+      <div class="hero-cta">
+        <a class="btn btn-download" id="downloadBtn" href="app-debug.apk">
+          <span class="shine" aria-hidden="true"></span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="downloadLabel">Detecting latest release…</span>
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          View source
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Free &amp; open source</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.7-8 10-4.5-1.3-8-5-8-10V6l8-4z"/></svg>arm64 · armhf · i386 · amd64</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/></svg>3 setup modes</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span id="metaVersion">v1.3</span></span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b><span class="count" data-count="26">0</span><em>+</em></b><span>Release payloads</span></div>
+        <div class="stat"><b><span class="count" data-count="4">0</span></b><span>Guest architectures</span></div>
+        <div class="stat"><b><span class="count" data-count="3">0</span></b><span>Setup modes</span></div>
+        <div class="stat"><b><span class="count" data-count="18">0</span><em>+</em></b><span>Built-in tools</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MARQUEE ================= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>Rooted chroot</span><span>Rootless QEMU VM</span><span>Tour Mode</span><span>WiFi &amp; WPA audits</span><span>Handshake capture</span><span>HID attacks</span><span>Metasploit</span><span>Nmap scanning</span><span>nuclei web scanner</span><span>USB Arsenal</span><span>GeoMac</span><span>VNC desktop</span><span>BLE WhisperPair</span>
+    </div>
+  </div>
+
+  <!-- ================= FEATURES ================= -->
+  <section id="features">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">Capabilities</span>
+        <h2>An entire pentest lab, <span class="grad">in your pocket</span></h2>
+        <p>Every tool talks to a real Linux environment — not a simulator. Rooted or rootless, the same battle-tested suite.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div><h3>Real terminal</h3><p>A full Linux terminal with a working shell, package manager and the Debian toolchain — apt install anything you need.</p><span class="tag">rooted + rootless</span></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="5" r="3"/><circle cx="12" cy="19" r="3"/><circle cx="19" cy="12" r="3"/><path d="M7.5 10.5l2-2M16.5 10.5l-2-2M7.5 13.5l2 2M16.5 13.5l-2 2"/></svg></div><h3>WiFi &amp; WPA suite</h3><p>Scan, capture handshakes, and audit WPA networks with the guest OS driving your adapter — including USB passthrough on the VM.</p><span class="tag">WiFi arsenal</span></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div><h3>Network recon</h3><p>Nmap scans, local-network discovery, nuclei web scanning, and full port &amp; service analysis from the terminal or the UI.</p><span class="tag">nmap · nuclei · LAN</span></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8.7-8 10-4.5-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Offensive frameworks</h3><p>Metasploit, searchsploit/ExploitDB mirror, HID injection, and the Arsenal launcher — everything pre-wired to the guest.</p><span class="tag">metasploit · HID</span></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l3-9 3 9M21 13l-3 9-3-9M8 11h5l1.5 4.5L16 11h5M2 15h4M18 15h4"/></svg></div><h3>Geo &amp; USB tools</h3><p>GeoMac mapping, USB Arsenal for peripheral attacks, MAC changing, and BLE WhisperPair experiments — all in one drawer.</p><span class="tag">geomac · usb · BLE</span></div>
+        <div class="card reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg></div><h3>Logs &amp; core manager</h3><p>A structured event log plus a Core manager that installs and updates the guest payloads — everything versioned and verifiable.</p><span class="tag">logging · OTA</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MODES ================= -->
+  <section id="modes">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">Setup modes</span>
+        <h2>One app, <span class="grad">three engines</span></h2>
+        <p>Choose at first launch — switch the experience to your device, your access level and your comfort zone.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card mode-card reveal" data-accent="green">
+          <span class="badge" style="color:var(--green);border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08)">Root required</span>
+          <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8.7-8 10-4.5-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <h3>Rooted Mode</h3>
+          <p>Mounts a real Debian trixie chroot on-device. Full performance, direct hardware access, apt package manager.</p>
+          <ul class="mode-list">
+            <li>Debian trixie rootfs, arm64</li>
+            <li>Native speed — no emulation</li>
+            <li>apt install any tool</li>
+            <li>Direct adapter / hardware access</li>
+          </ul>
+        </div>
+        <div class="card mode-card reveal" data-accent="violet" style="border-color:rgba(129,140,248,.35)">
+          <span class="badge" style="color:var(--accent-2);border:1px solid rgba(129,140,248,.35);background:rgba(129,140,248,.1)">No root needed</span>
+          <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <h3>Rootless Mode</h3>
+          <p>Boots a full Linux VM under QEMU — zero root. Pick the guest architecture on the setup screen: arm64 (tested), armhf, i386 or amd64.</p>
+          <ul class="mode-list">
+            <li>QEMU VM, user-mode networking</li>
+            <li>4 guest architectures</li>
+            <li>USB WiFi adapter passthrough</li>
+            <li>9p capture share to /sdcard</li>
+          </ul>
+        </div>
+        <div class="card mode-card reveal">
+          <span class="badge" style="color:var(--amber);border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08)">Nothing installed</span>
+          <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Tour Mode</h3>
+          <p>Walk through every feature of the app with nothing downloaded, extracted or executed — no root, no chroot, no VM.</p>
+          <ul class="mode-list">
+            <li>Explore every screen &amp; button</li>
+            <li>Zero installs, zero payloads</li>
+            <li>Safe on any device</li>
+            <li>Perfect first-run experience</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ARCHITECTURES ================= -->
+  <section id="arch">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">Architecture support</span>
+        <h2>Built for <span class="grad">every phone</span></h2>
+        <p>Payloads for each guest architecture live on the <code style="color:var(--accent)">core-files</code> release — the app auto-selects the right set. arm64 is fully tested; the others are boot-verified under QEMU and marked experimental.</p>
+      </div>
+      <div class="grid-4">
+        <div class="card arch-card reveal">
+          <div class="arch-name">arm64</div>
+          <div class="arch-desc">Tested engine · every modern phone</div>
+          <span class="arch-badge ok">✓ Tested</span>
+        </div>
+        <div class="card arch-card reveal">
+          <div class="arch-name">armhf</div>
+          <div class="arch-desc">32-bit ARM · QEMU boot-verified</div>
+          <span class="arch-badge exp">⚠ Not device-tested</span>
+        </div>
+        <div class="card arch-card reveal">
+          <div class="arch-name">i386</div>
+          <div class="arch-desc">32-bit x86 · QEMU boot-verified</div>
+          <span class="arch-badge exp">⚠ Not device-tested</span>
+        </div>
+        <div class="card arch-card reveal">
+          <div class="arch-name">amd64</div>
+          <div class="arch-desc">64-bit x86 · QEMU boot-verified</div>
+          <span class="arch-badge exp">⚠ Not device-tested</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DOWNLOAD ================= -->
+  <section id="download">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">Get it</span>
+        <h2>Download <span class="grad">OPXdemon</span></h2>
+        <p>The button always points to the newest release — detected automatically from this repository. Sideload the APK on an arm64 Android device (min SDK 24).</p>
+      </div>
+      <div class="dl-panel reveal">
+        <h3 id="dlVersion">OPXdemon <span style="color:var(--accent)">v1.3</span></h3>
+        <p class="dl-sub" id="dlSub">Detecting the latest release…</p>
+        <div class="hero-cta" style="justify-content:center">
+          <a class="btn btn-download" id="downloadBtn2" href="app-debug.apk">
+            <span class="shine" aria-hidden="true"></span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="downloadLabel2">Detecting latest release…</span>
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/mahmudabegum8859-design/strykerapp/releases" target="_blank" rel="noopener">All releases ↗</a>
+        </div>
+        <details class="dl-files">
+          <summary>All payload files (26) — rooted + rootless, every architecture</summary>
+          <div class="files-list">
+            <span class="file-chip">qemu-system-aarch64</span><span class="file-chip">Image</span><span class="file-chip">initrd.img</span><span class="file-chip">libslirp.so</span><span class="file-chip">rootfs.imgz</span><span class="file-chip">chroot64-debian.tar.gz</span>
+            <span class="file-chip">qemu-system-arm</span><span class="file-chip">Image-arm</span><span class="file-chip">initrd-arm.img</span><span class="file-chip">rootfs-arm.imgz</span><span class="file-chip">chroot64-debian-armhf.tar.gz</span>
+            <span class="file-chip">qemu-system-i386</span><span class="file-chip">Image-i386</span><span class="file-chip">initrd-i386.img</span><span class="file-chip">rootfs-i386.imgz</span><span class="file-chip">chroot64-debian-i386.tar.gz</span>
+            <span class="file-chip">qemu-system-x86_64</span><span class="file-chip">Image-amd64</span><span class="file-chip">initrd-amd64.img</span><span class="file-chip">rootfs-amd64.imgz</span><span class="file-chip">chroot64-debian-amd64.tar.gz</span>
+            <span class="file-chip">OPXdemon APK</span>
+          </div>
+        </details>
+        <p class="warn" style="text-align:left">⚠ For authorized security testing only. armhf / i386 / amd64 payloads are experimental — boot-verified in QEMU but not yet device-tested.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHANGELOG ================= -->
+  <section id="changelog">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">What's new</span>
+        <h2>Changelog — <span class="grad">auto-synced</span></h2>
+        <p>Fetched live from GitHub. When a new release ships, it appears here first and the download button updates automatically.</p>
+      </div>
+      <div class="changelog" id="changelogList">
+        <div class="cl-loading" id="clLoading">
+          <span class="spinner" style="display:inline-block;width:18px;height:18px;border-color:rgba(255,255,255,.2);border-top-color:var(--accent)"></span>
+          Syncing releases…
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT / SPECS ================= -->
+  <section id="about">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">About</span>
+        <h2>Technical <span class="grad">details</span></h2>
+        <p>Everything you need to know about the build, the payloads and the project itself.</p>
+      </div>
+      <dl class="spec-table reveal">
+        <div class="spec-row"><dt>App name</dt><dd>OPXdemon — Android Mobile Pentest Suite</dd></div>
+        <div class="spec-row"><dt>Package</dt><dd><code style="font-family:var(--font-mono)">com.opxdemon</code></dd></div>
+        <div class="spec-row"><dt>Developer</dt><dd>OP AMINUL FF</dd></div>
+        <div class="spec-row"><dt>Company</dt><dd>OPX</dd></div>
+        <div class="spec-row"><dt>Latest version</dt><dd><span id="specVersion">1.3 (versionCode 3)</span></dd></div>
+        <div class="spec-row"><dt>Min / target SDK</dt><dd>Android 7.0 (API 24) / API 28 · compiled against API 33</dd></div>
+        <div class="spec-row"><dt>ABI</dt><dd>arm64-v8a (host) · guests: arm64, armhf, i386, amd64</dd></div>
+        <div class="spec-row"><dt>License</dt><dd>GPLv3 — free &amp; open source</dd></div>
+        <div class="spec-row"><dt>Payload source</dt><dd>Release <code style="font-family:var(--font-mono)">core-files</code> — 26 files, auto-selected per architecture</dd></div>
+        <div class="spec-row"><dt>Update channel</dt><dd>OTA manifest (<code style="font-family:var(--font-mono)">opxdemon_manifest.json</code>) with SHA-256 verification</dd></div>
+        <div class="spec-row"><dt>Source code</dt><dd><a href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">github.com/mahmudabegum8859-design/strykerapp</a></dd></div>
+        <div class="spec-row"><dt>Checksum</dt><dd><code id="specSha" style="font-family:var(--font-mono);font-size:.78rem">computed from the latest release…</code></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">FAQ</span>
+        <h2>Questions, <span class="grad">answered</span></h2>
+      </div>
+      <div class="faq">
+        <details class="faq-item reveal"><summary>Does OPXdemon need root?</summary><div class="faq-body">No. Rooted Mode needs root for the chroot, but Rootless Mode boots a complete QEMU VM without any root, and Tour Mode installs nothing at all.</div></details>
+        <details class="faq-item reveal"><summary>Which devices are supported?</summary><div class="faq-body">Any arm64 Android device with Android 7.0+ (API 24). The rootless engine can additionally run armhf, i386 and amd64 guests — those payloads are boot-verified under QEMU but not yet device-tested.</div></details>
+        <details class="faq-item reveal"><summary>How do updates work?</summary><div class="faq-body">The app fetches <code style="font-family:var(--font-mono)">opxdemon_manifest.json</code> from the repository, verifies the SHA-256 of downloads, and prompts for new versions. This page does the same — the download button and changelog are auto-detected from the GitHub releases.</div></details>
+        <details class="faq-item reveal"><summary>Where do the payloads come from?</summary><div class="faq-body">All rooted and rootless payloads (kernels, initramfs, rootfs images, QEMU emulators, Debian chroots) are published on the <code style="font-family:var(--font-mono)">core-files</code> release of this repository — 26 files across four architectures.</div></details>
+        <details class="faq-item reveal"><summary>Is this legal to use?</summary><div class="faq-body">OPXdemon is an authorized-security-testing tool. Only use it on networks and devices you own or have explicit permission to test, and follow all applicable laws.</div></details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <a class="logo" href="#top">
+        <svg viewBox="0 0 32 32" aria-hidden="true" style="width:26px;height:26px"><path d="M16 4l10 5v9c0 5.5-4.2 9.6-10 11-5.8-1.4-10-5.5-10-11V9l10-5z" fill="url(#lg2)"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs></svg>
+        OPXdemon
+      </a>
+      <div class="foot-links">
+        <a href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/mahmudabegum8859-design/strykerapp/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/mahmudabegum8859-design/strykerapp/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+        <a href="https://github.com/mahmudabegum8859-design/strykerapp/blob/main/THIRD-PARTY-NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>
+      </div>
+    </div>
+    <p class="foot-note">© 2026 OP AMINUL FF / OPX · OPXdemon · For authorized security testing only · GPLv3</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var REPO = "mahmudabegum8859-design/strykerapp";
+  var MANIFEST_URL = "https://raw.githubusercontent.com/" + REPO + "/main/opxdemon_manifest.json";
+  var RELEASES_API = "https://api.github.com/repos/" + REPO + "/releases?per_page=8";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- particles background ---------------- */
+  var canvas = document.getElementById("particles");
+  var ctx = canvas.getContext("2d");
+  var W, H, particles = [], mouse = { x: -9999, y: -9999 };
+  var LINK = 130, N = reduced ? 0 : Math.min(90, Math.floor(innerWidth / 16));
+
+  function resize() {
+    W = canvas.width = window.innerWidth * devicePixelRatio;
+    H = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  function spawn() {
+    particles = [];
+    for (var i = 0; i < N; i++) {
+      particles.push({
+        x: Math.random() * innerWidth,
+        y: Math.random() * innerHeight,
+        vx: (Math.random() - .5) * .45,
+        vy: (Math.random() - .5) * .45,
+        r: Math.random() * 1.6 + .6
+      });
+    }
+  }
+  spawn();
+
+  var hue = 190;
+  function step() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > innerWidth) p.vx *= -1;
+      if (p.y < 0 || p.y > innerHeight) p.vy *= -1;
+      var dpx = p.x - mouse.x, dpy = p.y - mouse.y;
+      if (dpx * dpx + dpy * dpy < 120 * 120) {
+        p.x += dpx * .012; p.y += dpy * .012;
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(140,170,220,.5)";
+      ctx.fill();
+    }
+    for (var a = 0; a < particles.length; a++) {
+      for (var b = a + 1; b < particles.length; b++) {
+        var q = particles[a], s = particles[b];
+        var dx = q.x - s.x, dy = q.y - s.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < LINK * LINK) {
+          var alpha = (1 - Math.sqrt(d2) / LINK) * .22;
+          ctx.strokeStyle = "rgba(110,140,220," + alpha + ")";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(q.x, q.y);
+          ctx.lineTo(s.x, s.y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(step);
+  }
+  if (!reduced) step();
+
+  window.addEventListener("mousemove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener("touchmove", function (e) {
+    if (e.touches[0]) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }
+  }, { passive: true });
+
+  /* ---------------- nav ---------------- */
+  var nav = document.getElementById("nav");
+  var burger = document.getElementById("navBurger");
+  var navLinks = document.getElementById("navLinks");
+  window.addEventListener("scroll", function () { nav.classList.toggle("scrolled", scrollY > 24); }, { passive: true });
+  burger.addEventListener("click", function () {
+    var open = navLinks.classList.toggle("open");
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  navLinks.addEventListener("click", function (e) { if (e.target.tagName === "A") navLinks.classList.remove("open"); });
+
+  /* ---------------- reveal + counters + tilt ---------------- */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        en.target.classList.add("in");
+        if (en.target.querySelector(".count")) countUp(en.target);
+        io.unobserve(en.target);
+      }
+    });
+  }, { threshold: .15 });
+  document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+
+  function countUp(scope) {
+    scope.querySelectorAll(".count").forEach(function (el) {
+      var target = parseInt(el.dataset.count, 10) || 0;
+      var start = performance.now(), dur = 1400;
+      function tick(now) {
+        var p = Math.min(1, (now - start) / dur);
+        el.textContent = Math.floor((1 - Math.pow(1 - p, 3)) * target);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  document.querySelectorAll(".card").forEach(function (card) {
+    card.addEventListener("mousemove", function (e) {
+      var r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      card.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+  });
+
+  /* ---------------- duplicate marquee for seamless loop ---------------- */
+  var track = document.getElementById("marqueeTrack");
+  track.innerHTML += track.innerHTML;
+
+  /* ---------------- auto-detecting release ---------------- */
+  function fmtSize(bytes) {
+    if (!bytes) return "";
+    var mb = bytes / 1048576;
+    return mb >= 1024 ? (mb / 1024).toFixed(2) + " GB" : mb.toFixed(1) + " MB";
+  }
+  function versionFromTag(tag) { return String(tag || "").replace(/^v/, ""); }
+
+  function miniMarkdown(md) {
+    if (!md) return "";
+    var s = String(md);
+    s = s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    s = s.replace(/```[\s\S]*?```/g, function (b) {
+      return "<code>" + b.replace(/```/g, "").replace(/\n/g, "<br>") + "</code>";
+    });
+    s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+    s = s.replace(/\*([^*]+)\*/g, "<i>$1</i>");
+    s = s.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+    s = s.replace(/^## (.*)$/gm, "<h3>$1</h3>");
+    s = s.replace(/^# (.*)$/gm, "<h3>$1</h3>");
+    s = s.replace(/^- (.*)$/gm, "<li>$1</li>");
+    s = s.replace(/(<li>[\s\S]*?<\/li>)/g, "<ul>$1</ul>");
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return s;
+  }
+
+  function applyDownload(url, version, size, sha) {
+    [document.getElementById("downloadBtn"), document.getElementById("downloadBtn2")].forEach(function (b) {
+      if (url) b.href = url;
+    });
+    var label = "Download APK";
+    if (version) label += " v" + version;
+    if (size) label += " · " + fmtSize(size);
+    document.getElementById("downloadLabel").textContent = label;
+    document.getElementById("downloadLabel2").textContent = label;
+    document.getElementById("navDownload").textContent = version ? "Download v" + version : "Download APK";
+    if (version) {
+      document.getElementById("badgeVersion").textContent = "v" + version;
+      document.getElementById("metaVersion").textContent = "v" + version;
+      document.getElementById("dlVersion").innerHTML = "OPXdemon <span style=\"color:var(--accent)\">v" + version + "</span>";
+      document.getElementById("specVersion").textContent = version + " (latest release)";
+      var ld = document.getElementById("ld-software");
+      if (ld) { var obj = JSON.parse(ld.textContent); obj.softwareVersion = version; ld.textContent = JSON.stringify(obj); }
+    }
+    if (sha) document.getElementById("specSha").textContent = sha;
+  }
+
+  function applyManifest() {
+    return fetch(MANIFEST_URL, { headers: { "Accept": "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error("manifest " + r.status); return r.json(); })
+      .then(function (m) {
+        var app = m && m.app;
+        if (!app || !app.url) throw new Error("no app block");
+        applyDownload(app.url, app.versionName || versionFromTag(app.versionName), app.size, app.sha256);
+        renderChangelogFromManifest(m);
+      });
+  }
+
+  function renderChangelogFromManifest(m) {
+    var list = document.getElementById("changelogList");
+    if (!m || !m.news || !m.news.length) return;
+    var html = "";
+    m.news.slice(0, 3).forEach(function (n, i) {
+      html += '<div class="cl-item' + (i === 0 ? ' cl-latest' : '') + '">' +
+        '<div class="cl-head"><span class="cl-ver">' + (i === 0 ? "★ Latest" : "Update") + '</span>' +
+        '<span class="cl-date">' + (n.newsDate || "") + '</span></div>' +
+        '<div class="cl-body"><h3>' + n.title + '</h3>' + miniMarkdown(n.description || "") + '</div></div>';
+    });
+    list.innerHTML = html;
+  }
+
+  function fetchReleases() {
+    var list = document.getElementById("changelogList");
+    return fetch(RELEASES_API, { headers: { "Accept": "application/vnd.github+json" } })
+      .then(function (r) {
+        if (!r.ok) throw new Error("releases " + r.status);
+        return r.json();
+      })
+      .then(function (releases) {
+        if (!Array.isArray(releases) || !releases.length) throw new Error("empty");
+        var latest = null;
+        releases.forEach(function (rel) {
+          if (rel.draft) return;
+          var apk = rel.assets && rel.assets.find(function (a) { return /\.apk$/i.test(a.name); });
+          if (apk && !latest) {
+            latest = rel;
+            var ver = versionFromTag(rel.tag_name) ||
+              (apk.name.match(/OPXdemon-([\d.]+)\.apk/) || [])[1] || "";
+            applyDownload(apk.browser_download_url, ver, apk.size, null);
+          }
+        });
+        var html = "";
+        releases.forEach(function (rel) {
+          if (rel.draft) return;
+          var apk = rel.assets && rel.assets.find(function (a) { return /\.apk$/i.test(a.name); });
+          var isLatest = latest && rel.id === latest.id;
+          var ver = versionFromTag(rel.tag_name) || "release";
+          var date = rel.published_at ? new Date(rel.published_at).toUTCString().slice(0, 16) : "";
+          html += '<div class="cl-item' + (isLatest ? " cl-latest" : "") + '">' +
+            '<div class="cl-head">' +
+            '<span class="cl-ver">' + ver + '</span>' +
+            (isLatest ? '<span class="cl-tag">latest</span>' : "") +
+            '<span class="cl-date">' + date + '</span>' +
+            '<span class="cl-date">' + (apk ? fmtSize(apk.size) + " APK" : "payloads") + '</span>' +
+            '</div>' +
+            '<div class="cl-body">' + (miniMarkdown(rel.body || rel.name || "") || "<i>No notes.</i>") + '</div>' +
+            '</div>';
+        });
+        if (!html) throw new Error("no releases to show");
+        list.innerHTML = html;
+      })
+      .catch(function (err) {
+        return applyManifest().catch(function (e2) {
+          /* last-resort: local preview APK */
+          return fetch("app-debug.apk", { method: "HEAD" }).then(function (r) {
+            if (r.ok) {
+              applyDownload("app-debug.apk", null, null, null);
+              list.innerHTML = '<div class="cl-error">Live release sync unavailable (' + err.message +
+                '). Serving the local build — open the repository for release notes.</div>';
+            } else throw e2;
+          });
+        }).catch(function () {
+          list.innerHTML = '<div class="cl-error">Could not reach GitHub. <a href="https://github.com/' + REPO +
+            '/releases" target="_blank" rel="noopener">View releases directly →</a></div>';
+        });
+      });
+  }
+
+  fetchReleases();
+
+})();
+</script>
+</body>
+</html>
