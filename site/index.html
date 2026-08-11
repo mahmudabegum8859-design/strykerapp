@@ -185,14 +185,19 @@
 
   h1 {
     font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 7.2vw, 5.2rem);
-    line-height: 1.04; letter-spacing: -.02em; margin-bottom: 22px; animation: rise .9s .08s cubic-bezier(.2,.7,.2,1) both;
+    line-height: 1.05; letter-spacing: -.02em; margin-bottom: 22px;
   }
-  h1 .grad {
+  /* Premium line-by-line title reveal — each line slides up out of a clipped mask.
+     প্রিমিয়াম টাইটেল রিভিল: প্রতিটি লাইন ক্লিপড মাস্ক থেকে উপরে উঠে আসে। */
+  .hline { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
+  .hline > span { display: inline-block; transform: translateY(115%); animation: lineUp 1s cubic-bezier(.2,.7,.2,1) forwards; }
+  .hline.grad > span {
     background: linear-gradient(100deg, var(--accent) 10%, var(--accent-2) 50%, var(--accent-3) 90%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: shimmer 7s linear infinite;
+    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: lineUp 1s cubic-bezier(.2,.7,.2,1) forwards, shimmer 7s linear infinite;
   }
+  .hline:nth-of-type(2) > span { animation-delay: .14s, 0s; }
+  @keyframes lineUp { to { transform: translateY(0); } }
   @keyframes shimmer { to { background-position: -220% 0; } }
 
   .hero-sub {
@@ -542,6 +547,38 @@
     .chip-1, .chip-2, .chip-3 { display: none; }
   }
 
+  /* ================= CURSOR GLOW =================
+     Soft light that follows the pointer (desktop only).
+     পয়েন্টারকে ফলো করা নরম আলো (শুধু ডেস্কটপ)। */
+  #cursorGlow { position: fixed; left: 0; top: 0; width: 560px; height: 560px; z-index: 4; pointer-events: none;
+    background: radial-gradient(circle at center, rgba(34,211,238,.10), rgba(129,140,248,.05) 40%, transparent 70%);
+    transform: translate(-50%, -50%); opacity: 0; transition: opacity .5s ease; will-change: transform, opacity; }
+  body.glow-on #cursorGlow { opacity: 1; }
+
+  /* ================= NAV SCROLLSPY + SMOOTH SCROLL =================
+     Active section highlighted in the nav; anchors clear the fixed header.
+     স্ক্রল করলে নেভে কোন সেকশনে আছি তা হাইলাইট হয়। */
+  section[id] { scroll-margin-top: 76px; }
+  .nav-links a.active { color: var(--accent); }
+  .nav-links a.active::after { content: ""; display: block; height: 2px; margin-top: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2)); animation: rise .3s ease both; }
+
+  /* ================= BUTTON PRESS + MAGNETIC ================= */
+  .btn:active { transform: scale(.96); }
+  .magnetic { will-change: transform; }
+
+  /* ================= HOW IT WORKS / STEPS ================= */
+  .step { position: relative; padding: 30px 26px 28px; }
+  .step-num { display: block; font-family: var(--font-mono); font-size: 2.1rem; font-weight: 700; line-height: 1;
+    color: transparent; -webkit-text-stroke: 1.2px rgba(34,211,238,.55); margin-bottom: 16px; transition: .3s; }
+  .step:hover .step-num { color: var(--accent); -webkit-text-stroke: 1px transparent; }
+
+  /* ================= FOOTER GITHUB STARS ================= */
+  .gh-stars { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: .8rem;
+    color: var(--amber); border: 1px solid rgba(251,191,36,.3); background: rgba(251,191,36,.06);
+    padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+  .gh-stars:hover { background: rgba(251,191,36,.12); color: var(--amber); }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     html { scroll-behavior: auto; }
@@ -560,6 +597,10 @@
 </div>
 
 <div id="scrollProgress" aria-hidden="true"></div>
+
+<!-- Soft pointer-follow glow for the premium feel (desktop only)
+     প্রিমিয়াম ফিলের জন্য পয়েন্টার-ফলো নরম গ্লো -->
+<div id="cursorGlow" aria-hidden="true"></div>
 
 <canvas id="particles" aria-hidden="true"></canvas>
 <div class="aurora" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
@@ -580,7 +621,7 @@
       <a href="#download">Download</a>
       <a href="#changelog">Changelog</a>
       <a href="#about">About</a>
-      <a class="nav-cta" id="navDownload" href="app-debug.apk">Download APK</a>
+      <a class="nav-cta magnetic" id="navDownload" href="app-debug.apk">Download APK</a>
     </div>
     <button class="nav-burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">☰</button>
   </div>
@@ -594,10 +635,13 @@
       <div class="hero-grid">
         <div class="hero-left">
           <span class="hero-badge"><span class="dot"></span> Live from the <span class="ver" id="badgeVersion">core-files</span> release</span>
-          <h1>Security testing,<br><span class="grad" id="heroTitle">reimagined for Android.</span></h1>
+          <h1>
+            <span class="hline"><span>Security testing,</span></span><br>
+            <span class="hline grad" id="heroTitle"><span>reimagined for Android.</span></span>
+          </h1>
           <p class="hero-sub">OPXdemon turns your phone into a complete <b>mobile pentest lab</b> — a real Debian environment via <b>rooted chroot</b>, a full Linux VM with <b>rootless QEMU</b>, or an interactive <b>Tour Mode</b> that explores everything without installing a thing.</p>
           <div class="hero-cta">
-            <a class="btn btn-download" id="downloadBtn" href="app-debug.apk">
+            <a class="btn btn-download magnetic" id="downloadBtn" href="app-debug.apk">
               <span class="shine" aria-hidden="true"></span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span id="downloadLabel">Detecting latest release…</span>
@@ -681,6 +725,36 @@
       <span>Rooted chroot</span><span>Rootless QEMU VM</span><span>Tour Mode</span><span>WiFi &amp; WPA audits</span><span>Handshake capture</span><span>HID attacks</span><span>Metasploit</span><span>Nmap scanning</span><span>nuclei web scanner</span><span>USB Arsenal</span><span>GeoMac</span><span>VNC desktop</span><span>BLE WhisperPair</span>
     </div>
   </div>
+
+  <!-- ================= HOW IT WORKS =================
+       Three quick steps — big-company style "get started" strip.
+       তিনটি ধাপে শুরু করার প্রিমিয়াম স্ট্রিপ। -->
+  <section id="how" class="how">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="sec-eyebrow">Get started</span>
+        <h2>Up and running in <span class="grad">three steps</span></h2>
+        <p>No flashing, no complex setup — install the APK, pick a mode, and start your lab.</p>
+      </div>
+      <div class="grid-3 steps">
+        <div class="card step reveal">
+          <span class="step-num">01</span>
+          <h3>Install</h3>
+          <p>Sideload the APK on any arm64 Android device (Android 7.0+). The download button above always gives you the newest build.</p>
+        </div>
+        <div class="card step reveal">
+          <span class="step-num">02</span>
+          <h3>Choose a mode</h3>
+          <p>Rooted chroot, rootless QEMU VM, or a zero-install Tour Mode — pick on first launch, switch anytime.</p>
+        </div>
+        <div class="card step reveal">
+          <span class="step-num">03</span>
+          <h3>Run your lab</h3>
+          <p>The engine boots a real Debian environment on-device. Plug in a USB Wi-Fi adapter and start testing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ================= FEATURES ================= -->
   <section id="features">
@@ -801,7 +875,7 @@
         <h3 id="dlVersion">OPXdemon <span style="color:var(--accent)">v1.3</span></h3>
         <p class="dl-sub" id="dlSub">Detecting the latest release…</p>
         <div class="hero-cta" style="justify-content:center">
-          <a class="btn btn-download" id="downloadBtn2" href="app-debug.apk">
+          <a class="btn btn-download magnetic" id="downloadBtn2" href="app-debug.apk">
             <span class="shine" aria-hidden="true"></span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span id="downloadLabel2">Detecting latest release…</span>
@@ -937,6 +1011,8 @@
         OPXdemon
       </a>
       <div class="foot-links">
+        <!-- Live GitHub star count, filled from the repo API at runtime -->
+        <a class="gh-stars" id="ghStars" href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">★ <span>—</span> stars</a>
         <a href="https://github.com/mahmudabegum8859-design/strykerapp" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/mahmudabegum8859-design/strykerapp/releases" target="_blank" rel="noopener">Releases</a>
         <a href="https://github.com/mahmudabegum8859-design/strykerapp/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
@@ -1048,6 +1124,17 @@
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       if (en.isIntersecting) {
+        /* Stagger grid cards — each card reveals a beat after the previous one,
+           then the delay is cleared so hover stays snappy.
+           গ্রিড কার্ডগুলো একটার পর একটা স্ট্যাগার করে রিভিল হয়। */
+        var par = en.target.parentElement;
+        if (par && /grid-2|grid-3|grid-4/.test(par.className)) {
+          var idx = Array.prototype.indexOf.call(par.children, en.target);
+          en.target.style.transitionDelay = (idx * 80) + "ms";
+          en.target.addEventListener("transitionend", function () {
+            en.target.style.transitionDelay = "";
+          }, { once: true });
+        }
         en.target.classList.add("in");
         if (en.target.querySelector(".count")) countUp(en.target);
         io.unobserve(en.target);
@@ -1339,7 +1426,6 @@
   /* ================= PREMIUM FX =================
      Preloader, scroll progress bar, back-to-top, typing terminal, 3D tilts.
      প্রিলোডার, স্ক্রল-প্রগ্রেস, ব্যাক-টু-টপ, টাইপিং টার্মিনাল, 3D টিল্ট। */
-
   /* Hide the preloader shortly after load (fallback timer, robust offline too). */
   var preloader = document.getElementById("preloader");
   setTimeout(function () { preloader.classList.add("hide"); }, 1100);
@@ -1410,6 +1496,64 @@
       card.style.setProperty("--ry", "0deg");
     });
   });
+
+  /* Soft cursor glow that eases toward the pointer (desktop only).
+     পয়েন্টারকে মসৃণভাবে ফলো করা নরম গ্লো। */
+  var glow = document.getElementById("cursorGlow");
+  if (glow && matchMedia("(hover:hover)").matches && !reduced) {
+    var gx = innerWidth / 2, gy = innerHeight / 2, cx = gx, cy = gy;
+    document.addEventListener("mousemove", function (e) {
+      gx = e.clientX; gy = e.clientY;
+      document.body.classList.add("glow-on");
+    });
+    document.addEventListener("mouseleave", function () { document.body.classList.remove("glow-on"); });
+    (function glowLoop() {
+      cx += (gx - cx) * .12; cy += (gy - cy) * .12;
+      glow.style.transform = "translate(" + (cx - 280) + "px," + (cy - 280) + "px)";
+      requestAnimationFrame(glowLoop);
+    })();
+  }
+
+  /* Magnetic CTA buttons — gently attracted to the cursor.
+     CTA বাটনগুলো কার্সরের দিকে হালকা আকৃষ্ট হয়। */
+  if (matchMedia("(hover:hover)").matches && !reduced) {
+    document.querySelectorAll(".magnetic").forEach(function (el) {
+      el.addEventListener("mousemove", function (e) {
+        var r = el.getBoundingClientRect();
+        var mx = (e.clientX - r.left - r.width / 2) * .22;
+        var my = (e.clientY - r.top - r.height / 2) * .22;
+        el.style.transform = "translate(" + mx.toFixed(1) + "px," + my.toFixed(1) + "px)";
+      });
+      el.addEventListener("mouseleave", function () { el.style.transform = ""; });
+    });
+  }
+
+  /* Subtle parallax drift on the aurora background while scrolling. */
+  var auroraEl = document.querySelector(".aurora");
+  window.addEventListener("scroll", function () {
+    if (auroraEl) auroraEl.style.transform = "translateY(" + (window.scrollY * .05).toFixed(1) + "px)";
+  }, { passive: true });
+
+  /* Scrollspy — highlight the nav link of the section currently in view. */
+  var spySections = document.querySelectorAll("section[id]");
+  var spyLinks = document.querySelectorAll(".nav-links a[href^='#']");
+  function onScrollSpy() {
+    var pos = window.scrollY + 140, cur = null;
+    spySections.forEach(function (s) { if (pos >= s.offsetTop) cur = s.id; });
+    spyLinks.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + cur); });
+  }
+  window.addEventListener("scroll", onScrollSpy, { passive: true });
+  onScrollSpy();
+
+  /* Live GitHub star count in the footer. */
+  var ghStars = document.getElementById("ghStars");
+  if (ghStars) {
+    fetch("https://api.github.com/repos/" + REPO).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (repo) {
+        ghStars.querySelector("span").textContent = (repo.stargazers_count || 0).toLocaleString();
+      })
+      .catch(function () { ghStars.style.display = "none"; });
+  }
 
 })();
 </script>
