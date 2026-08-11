@@ -1,0 +1,7 @@
+# robots.txt for OPXdemon
+# Allow all search engines to crawl the whole site.
+User-agent: *
+Allow: /
+
+# Tell search engines where the sitemap lives
+Sitemap: https://opxdemon.netlify.app/sitemap.xml
