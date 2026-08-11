@@ -54,15 +54,30 @@
     }
   },
   "app": {
-    "versionCode": 1,
-    "versionName": "1.1",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.1/OPXdemon-1.1.apk",
-    "sha256": "",
-    "size": 0,
+    "versionCode": 2,
+    "versionName": "1.2",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.2/OPXdemon-1.2.apk",
+    "sha256": "4593a5019b397a4e4fe16829cd602e1f785127ec63f49abf1614f2bb3a89f515",
+    "size": 27491599,
     "mandatory": false,
-    "changelog": "OPXdemon 1.1\n- Rebranded as OPXdemon (package com.opxdemon) by OP AMINUL FF / OPX.\n- New Tour Mode: walk through every feature with nothing installed, downloaded or executed.\n- versionCode 1, versionName 1.1."
+    "changelog": "OPXdemon 1.2\n- Bug-fix release: memory-safe Gradle defaults so the build fits 2 GiB sandboxes, preview page now shows the real version, docs cleaned up.\n- versionCode 2, versionName 1.2."
   },
   "news": [
+    {
+      "id": 2,
+      "title": "OPXdemon 1.2 — bug-fix release",
+      "description": "OPXdemon 1.2 (versionCode 2): fixed the build configuration so the APK builds reliably in memory-limited environments, corrected the stale version shown on the preview page, and cleaned up remaining docs. Payloads still come from the same v1.1 release.",
+      "newsDate": "2026-08-11",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": false,
+      "actionbutton1": true,
+      "actionbutton1text": "Open repository",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
     {
       "id": 1,
       "title": "OPXdemon 1.1 — rebrand & Tour Mode",

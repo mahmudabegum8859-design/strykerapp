@@ -1,6 +1,6 @@
 {
   "name": "opxdemon-app",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "OPXdemon — free and open-source mobile pentest suite for Android (authorized testing only), by OP AMINUL FF / OPX. Durable Freebuff preview scripts for the Gradle/Android build.",
   "scripts": {

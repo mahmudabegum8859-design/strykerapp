@@ -1,6 +1,6 @@
 # OPXdemon
 
-> **OPXdemon 1.1** — a free and open-source mobile pentest suite for Android (authorized testing only).
+> **OPXdemon 1.2** — a free and open-source mobile pentest suite for Android (authorized testing only).
 > Rebranded fork of StrykerOSS by **OP AMINUL FF** (company: **OPX**).
 
 OPXdemon bundles a curated set of network, wireless and web security tools into a single
@@ -10,7 +10,7 @@ Debian trixie (arm64) `chroot` (**Rooted mode**) or inside an arm64 QEMU virtual
 installs, downloads and executes nothing.
 
 - **Package**: `com.opxdemon`
-- **Version**: 1.1 (versionCode 1)
+- **Version**: 1.2 (versionCode 2)
 - **Developer**: OP AMINUL FF · **Company**: OPX
 - **Min SDK**: 24 (Android 7.0) · **Target SDK**: 28
 - **License**: [GNU GPL v3.0](LICENSE) (bundled third-party components keep their own licenses — see in-app *About → Open-source licenses*)
@@ -112,7 +112,7 @@ produce an APK.
 
 ## Installation (end users)
 
-1. Install the APK on a rooted (or rootless-capable) device: `adb install OPXdemon-1.1.apk`.
+1. Install the APK on a rooted (or rootless-capable) device: `adb install OPXdemon-1.2.apk`.
 2. First launch: pick **Rooted**, **Rootless**, or **Tour Mode**.
    - Rooted: the in-app installer downloads and mounts the Debian chroot, then installs optional
      components (Metasploit, Nuclei, Hydra, SearchSploit).
