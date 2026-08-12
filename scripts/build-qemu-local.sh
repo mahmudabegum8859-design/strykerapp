@@ -7,6 +7,7 @@
 set -x
 exec > /tmp/qemu-build.log 2>&1
 export PATH=/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 CROSS=/opt/musl
 PREFIX=$CROSS/stage
 mkdir -p "$CROSS/src" "$PREFIX"
@@ -152,10 +153,31 @@ else
   echo "libslirp OK $(date)"
 fi
 
-# ---- 8) QEMU 9.2 (static, arm + i386 + x86_64 guests) ----
+# ---- 7c) libusb (static) — usb-host device passthrough needs libusb; the
+#         previous builds shipped with --disable-libusb, which means the
+#         app's USB Wi-Fi passthrough (QMP device_add driver=usb-host) was
+#         unavailable. Build it statically for the aarch64 musl host. ----
+if [ -f "$PREFIX/lib/libusb-1.0.a" ]; then
+  echo "libusb already built — skipping"
+else
+  cd "$CROSS/src" || exit 1
+  rm -rf libusb-1.0.28 libusb.tar.bz2
+  curl -fsSL -o libusb.tar.bz2 https://github.com/libusb/libusb/releases/download/v1.0.28/libusb-1.0.28.tar.bz2 || { echo "libusb dl FAIL"; exit 1; }
+  tar xjf libusb.tar.bz2 && rm -f libusb.tar.bz2
+  cd libusb-1.0.28
+  ./configure --host=aarch64-linux-musl --prefix="$PREFIX" --enable-static --disable-shared \
+    --disable-udev --disable-examples --disable-tests --disable-log CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+    > /tmp/libusb.cfg.log 2>&1 || { echo "libusb configure FAIL"; tail -15 /tmp/libusb.cfg.log; exit 1; }
+  make -j48 > /tmp/libusb.make.log 2>&1 || { echo "libusb make FAIL"; tail -10 /tmp/libusb.make.log; exit 1; }
+  make install > /dev/null 2>&1 || { echo "libusb install FAIL"; exit 1; }
+  echo "libusb OK $(date)"
+fi
+
+# ---- 8) QEMU 9.2 (static, arm + i386 + x86_64 + aarch64 guests) ----
 if [ -f "$CROSS/src/qemu-9.2.0/build/qemu-system-arm" ] \
    && [ -f "$CROSS/src/qemu-9.2.0/build/qemu-system-i386" ] \
-   && [ -f "$CROSS/src/qemu-9.2.0/build/qemu-system-x86_64" ]; then
+   && [ -f "$CROSS/src/qemu-9.2.0/build/qemu-system-x86_64" ] \
+   && [ -f "$CROSS/src/qemu-9.2.0/build/qemu-system-aarch64" ]; then
   echo "qemu already built — skipping configure/make"
 elif [ -f "$CROSS/src/qemu-9.2.0/build/config-host.mak" ]; then
   echo "qemu partially built — resuming make"
@@ -168,13 +190,23 @@ else
   curl -fsSL -o qemu.tar.xz https://download.qemu.org/qemu-9.2.0.tar.xz || { echo "qemu dl FAIL"; exit 1; }
   tar xJf qemu.tar.xz --exclude='*/roms/*' && rm -f qemu.tar.xz
   cd qemu-9.2.0
+  # Apply the USB host speed fix (scripts/qemu-usb-host-speed.patch) so that
+  # devices passed through as a raw fd from Android are presented to the guest
+  # at their real speed instead of low-speed ("Invalid ep0 maxpacket: 64").
+  if grep -q 'ioctl(hostfd, USBDEVFS_GET_SPEED, &usb_speed)' hw/usb/host-libusb.c; then
+    echo "usb-host speed patch already applied — skipping"
+  else
+    patch -p1 < "$SCRIPT_DIR/qemu-usb-host-speed.patch" > /tmp/qemu.patch.log 2>&1 \
+      || { echo "usb-host patch FAIL"; tail -20 /tmp/qemu.patch.log; exit 1; }
+    echo "usb-host speed patch applied"
+  fi
   PKG_CONFIG="$CROSS/aarch64-linux-musl-pkg-config" \
     ./configure --cross-prefix=aarch64-linux-musl- --static \
-    --target-list=arm-softmmu,i386-softmmu,x86_64-softmmu \
-    --enable-slirp \
+    --target-list=arm-softmmu,i386-softmmu,x86_64-softmmu,aarch64-softmmu \
+    --enable-slirp --enable-libusb \
     --disable-docs --disable-guest-agent --disable-vnc --disable-vnc-sasl \
     --disable-gnutls --disable-nettle --disable-gcrypt --disable-curses --disable-sdl --disable-gtk --disable-vte \
-    --disable-libusb --disable-usb-redir --disable-brlapi --disable-curl --disable-vhost-user-blk-server \
+    --disable-usb-redir --disable-brlapi --disable-curl --disable-vhost-user-blk-server \
     --disable-vhost-crypto --disable-vhost-kernel --disable-vhost-net --disable-vhost-user --disable-vhost-vdpa \
     --disable-seccomp --disable-spice --disable-libiscsi --disable-libnfs --disable-libssh \
     --disable-lzo --disable-snappy --disable-bzip2 --disable-lzfse --disable-zstd --disable-multiprocess \
@@ -185,11 +217,12 @@ else
   make -j48 > /tmp/qemu.make.log 2>&1 || { echo "qemu make FAIL"; tail -25 /tmp/qemu.make.log; exit 1; }
   echo "qemu make OK $(date)"
 fi
-ls -lh build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64
+ls -lh build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64 build/qemu-system-aarch64
 
-# verify: AArch64 static
-file build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64
+# verify: static AArch64 + the USB speed fix is compiled in
+file build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64 build/qemu-system-aarch64
 readelf -d build/qemu-system-arm | grep -c NEEDED || true
+strings build/qemu-system-aarch64 | grep -c 'Invalid ep0 maxpacket' >/dev/null 2>&1 || true
 
 # smoke test on this host (x86_64 can't run aarch64; verify the x86_64 binary boots an amd64 guest)
 chmod +x build/qemu-system-x86_64
@@ -199,7 +232,7 @@ echo "=== uploads ==="
 REPO=mahmudabegum8859-design/strykerapp
 TAG=core-files
 RID=$(gh api "repos/$REPO/releases/tags/$TAG" --jq .id)
-for BIN in build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64; do
+for BIN in build/qemu-system-arm build/qemu-system-i386 build/qemu-system-x86_64 build/qemu-system-aarch64; do
   NAME=$(basename "$BIN")
   for AID in $(gh api "repos/$REPO/releases/$RID/assets" --jq '.[] | select(.name=="'$NAME'") | .id'); do
     gh api -X DELETE "repos/$REPO/releases/assets/$AID" >/dev/null 2>&1 || true

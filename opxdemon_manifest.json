@@ -59,8 +59,8 @@
     "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
     "qemu": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-      "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
-      "size": 43800304
+      "sha256": "e21003c05e0a2781ff80a66ffc3217b6dbcef84a888c6bb901fd9d824b985278",
+      "size": 33560992
     },
     "kernel": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
@@ -86,8 +86,8 @@
       "arm64": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-          "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
-          "size": 43800304
+          "sha256": "e21003c05e0a2781ff80a66ffc3217b6dbcef84a888c6bb901fd9d824b985278",
+          "size": 33560992
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
@@ -113,8 +113,8 @@
       "armhf": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-arm",
-          "sha256": "17243829dadb879a4dade8216422a6b26c219eba018326e35201f5ea0228640b",
-          "size": 31287032
+          "sha256": "0a936fcfacea6c946b870672c38bc9655e515e157f27ebb713cd0c6f4790c733",
+          "size": 31357920
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-arm",
@@ -135,8 +135,8 @@
       "i386": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-i386",
-          "sha256": "b4652fe9161292ff5edab493dd8ed66b65ecb37502e09a4eb5a20a04f61a6e85",
-          "size": 28907184
+          "sha256": "b966220c43a3f2e93d7959571a7f0b215b70a7b59c5a3bf30b54764a5511db49",
+          "size": 28982168
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-i386",
@@ -157,8 +157,8 @@
       "amd64": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-x86_64",
-          "sha256": "0ef1f0926fe4961fd0107477d52209a041850db093490c505d4674718377a5df",
-          "size": 28933504
+          "sha256": "d5d250ae73c2748fd1b6d407447695a0a73a45774925c08691de41cd90de126b",
+          "size": 29024872
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-amd64",
@@ -190,7 +190,7 @@
   "news": [
     {
       "id": 5,
-      "title": "OPXdemon 1.4.1 — hotfix: rootfs size mismatch + stale-manifest self-heal",
+      "title": "OPXdemon 1.4.1 \u2014 hotfix: rootfs size mismatch + stale-manifest self-heal",
       "description": "OPXdemon 1.4.1 (versionCode 5): fixes the \"Size mismatch: got 462418320, expected 427974567\" error during rootless install (the arm64 per-arch manifest entry was stale). The installer now also self-heals: any size/checksum mismatch drops the cached manifest, fetches a fresh one and retries once, so future payload updates can never block the install.",
       "newsDate": "2026-08-12",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
@@ -205,8 +205,8 @@
     },
     {
       "id": 4,
-      "title": "OPXdemon 1.4 — auto payload update + USB Wi-Fi in the VM",
-      "description": "OPXdemon 1.4 (versionCode 4): the rootless engine now auto-refreshes its payloads from the core-files release (kernel / initrd / QEMU / rootfs) when they change, so the new USB Wi-Fi rootfs reaches every device automatically. All architectures ship 160+ wireless drivers + firmware (rtl8xxxu incl. RTL8188FTV, rt2800usb, mt76x0u/x2u, ath9k_htc, zd1211rw) — USB adapters work in the guest with monitor mode + injection.",
+      "title": "OPXdemon 1.4 \u2014 auto payload update + USB Wi-Fi in the VM",
+      "description": "OPXdemon 1.4 (versionCode 4): the rootless engine now auto-refreshes its payloads from the core-files release (kernel / initrd / QEMU / rootfs) when they change, so the new USB Wi-Fi rootfs reaches every device automatically. All architectures ship 160+ wireless drivers + firmware (rtl8xxxu incl. RTL8188FTV, rt2800usb, mt76x0u/x2u, ath9k_htc, zd1211rw) \u2014 USB adapters work in the guest with monitor mode + injection.",
       "newsDate": "2026-08-12",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
@@ -220,7 +220,7 @@
     },
     {
       "id": 3,
-      "title": "OPXdemon 1.3 — all payloads from core-files + multi-arch VM",
+      "title": "OPXdemon 1.3 \u2014 all payloads from core-files + multi-arch VM",
       "description": "OPXdemon 1.3 (versionCode 3): every payload now downloads from the 'chroot + rootless core files' release, and the rootless engine supports arm64 (tested) plus armhf / i386 / amd64 guests (boot-verified in QEMU, not device-tested). Pick the guest architecture on the Rootless setup screen.",
       "newsDate": "2026-08-11",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
@@ -235,7 +235,7 @@
     },
     {
       "id": 2,
-      "title": "OPXdemon 1.2 — bug-fix release",
+      "title": "OPXdemon 1.2 \u2014 bug-fix release",
       "description": "OPXdemon 1.2 (versionCode 2): fixed the build configuration so the APK builds reliably in memory-limited environments, corrected the stale version shown on the preview page, and cleaned up remaining docs.",
       "newsDate": "2026-08-11",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
@@ -250,8 +250,8 @@
     },
     {
       "id": 1,
-      "title": "OPXdemon 1.1 — rebrand & Tour Mode",
-      "description": "OPXdemon 1.1 (package com.opxdemon) by OP AMINUL FF / OPX. New Tour Mode walks you through every feature without installing anything — no root, no downloads, no extraction.",
+      "title": "OPXdemon 1.1 \u2014 rebrand & Tour Mode",
+      "description": "OPXdemon 1.1 (package com.opxdemon) by OP AMINUL FF / OPX. New Tour Mode walks you through every feature without installing anything \u2014 no root, no downloads, no extraction.",
       "newsDate": "2026-08-10",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",

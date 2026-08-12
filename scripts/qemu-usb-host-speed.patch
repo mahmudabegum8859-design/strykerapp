@@ -1,0 +1,20 @@
+--- a/hw/usb/host-libusb.c
++++ b/hw/usb/host-libusb.c
+@@ -1010,8 +1010,15 @@
+          * Speeds are defined in linux/usb/ch9.h, file not included
+          * due to name conflicts.
+          */
+-        rc = ioctl(hostfd, USBDEVFS_GET_SPEED, NULL);
+-        switch (rc) {
++        int usb_speed = 0;
++        rc = ioctl(hostfd, USBDEVFS_GET_SPEED, &usb_speed);
++        if (rc < 0) {
++            /* kernel USBDEVFS_GET_SPEED writes speed to the pointer arg;
++             * a NULL arg returns EFAULT and the device would be presented
++             * as low-speed, failing enumeration on the guest. */
++            usb_speed = 0;
++        }
++        switch (usb_speed) {
+         case 1: /* low */
+             libusb_speed = LIBUSB_SPEED_LOW;
+             break;
