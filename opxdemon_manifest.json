@@ -59,8 +59,8 @@
     "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
     "qemu": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-      "sha256": "e21003c05e0a2781ff80a66ffc3217b6dbcef84a888c6bb901fd9d824b985278",
-      "size": 33560992
+      "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
+      "size": 43800304
     },
     "kernel": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
@@ -86,8 +86,8 @@
       "arm64": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-          "sha256": "e21003c05e0a2781ff80a66ffc3217b6dbcef84a888c6bb901fd9d824b985278",
-          "size": 33560992
+          "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
+          "size": 43800304
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
