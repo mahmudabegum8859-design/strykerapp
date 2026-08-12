@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.opxdemon.ota.PayloadState;
 import com.opxdemon.ota.QemuDownloader;
+import com.opxdemon.ota.RemoteManifest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -191,6 +193,11 @@ public final class QemuInstaller {
             ensureMinimumDisk(context, p);
             boolean ok = RootlessEngine.get(context).isInstalled();
             if (ok) {
+                // Remember which release this rootfs came from so the engine can
+                // detect newer payloads (e.g. the USB Wi-Fi firmware release) on
+                // later boots and refresh them automatically.
+                PayloadState.storeRootfs(context, b.rootfs == null ? null : b.rootfs.sha256,
+                        b.rootfs == null ? null : b.rootfs.url);
                 stage(p, Stage.DONE);
                 log(p, 2, "Rootless engine installed");
             } else {
@@ -201,6 +208,111 @@ public final class QemuInstaller {
             Log.e(TAG, "network install failed", e);
             log(p, 3, "Install error: " + e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * True when any of the installed engine payloads no longer matches the
+     * current release (manifest sha256 differs, or a file is missing).
+     * The small files are hashed on disk; the decompressed rootfs is compared
+     * through the fingerprint stored at install time.
+     */
+    public static boolean needsUpdate(Context context) {
+        if (!RootlessEngine.get(context).isInstalled()) return false;
+        if (RootlessEngine.get(context).isRunning()) return false;
+        QemuDownloader.Bundle b = QemuDownloader.resolve(context);
+        if (b == null || !b.isUsable()) return false;
+        if (!PayloadState.rootfsMatches(context, b.rootfs)) return true;
+        if (!fileMatches(RootlessPaths.qemuBin(context), b.qemu)) return true;
+        if (!fileMatches(RootlessPaths.kernel(context), b.kernel)) return true;
+        if (!fileMatches(RootlessPaths.initrd(context), b.initrd)) return true;
+        if (RootlessPaths.arch(context).needsLibslirp && b.libslirp != null && b.libslirp.isUsable()
+                && !fileMatches(RootlessPaths.libslirp(context), b.libslirp)) return true;
+        return false;
+    }
+
+    /**
+     * Re-downloads only the engine payloads whose checksum changed on the
+     * release, then records the new rootfs fingerprint. The running engine is
+     * never touched; files are replaced atomically (verified download + rename).
+     *
+     * @return true when the engine is current afterwards (or already was).
+     */
+    public static boolean updateIfNeeded(Context context, Progress p) {
+        QemuDownloader.Bundle b = QemuDownloader.resolve(context);
+        if (b == null || !b.isUsable()) {
+            log(p, 3, "Payload update: no usable payload set in the manifest");
+            return false;
+        }
+        if (RootlessEngine.get(context).isRunning()) {
+            log(p, 2, "Payload update skipped — VM is running");
+            return true;
+        }
+        boolean any = false;
+
+        if (!fileMatches(RootlessPaths.qemuBin(context), b.qemu)) {
+            if (!fetch(b.qemu, RootlessPaths.qemuBin(context), "QEMU", p)) return false;
+            RootlessPaths.qemuBin(context).setExecutable(true, false);
+            any = true;
+        }
+        if (!fileMatches(RootlessPaths.kernel(context), b.kernel)) {
+            if (!fetch(b.kernel, RootlessPaths.kernel(context), "kernel", p)) return false;
+            any = true;
+        }
+        if (!fileMatches(RootlessPaths.initrd(context), b.initrd)) {
+            if (!fetch(b.initrd, RootlessPaths.initrd(context), "initrd", p)) return false;
+            any = true;
+        }
+        if (RootlessPaths.arch(context).needsLibslirp && b.libslirp != null && b.libslirp.isUsable()
+                && !fileMatches(RootlessPaths.libslirp(context), b.libslirp)) {
+            if (!fetch(b.libslirp, RootlessPaths.libslirp(context), "libslirp.so", p)) return false;
+            any = true;
+        }
+
+        // The rootfs is the big one and the one that carries driver/firmware
+        // updates — refresh it last, keeping the old image until the new one is
+        // fully downloaded and decompressed.
+        if (!PayloadState.rootfsMatches(context, b.rootfs)) {
+            File rootfs = RootlessPaths.rootfs(context);
+            File archive = new File(RootlessPaths.base(context), "rootfs.download");
+            if (!fetch(b.rootfs, archive, "rootfs", p)) return false;
+            log(p, 1, "Decompressing updated rootfs (this can take a minute)");
+            if (!gunzipFile(archive, rootfs, p)) {
+                //noinspection ResultOfMethodCallIgnored
+                archive.delete();
+                return false;
+            }
+            //noinspection ResultOfMethodCallIgnored
+            archive.delete();
+            PayloadState.storeRootfs(context, b.rootfs.sha256, b.rootfs.url);
+            any = true;
+        }
+
+        log(p, any ? 2 : 2, any
+                ? "Engine payloads updated to the latest release"
+                : "Engine payloads are already current");
+        return true;
+    }
+
+    /** True when the local file has the exact sha256 the manifest expects. */
+    private static boolean fileMatches(File file, RemoteManifest.Asset asset) {
+        if (asset == null || asset.sha256 == null || asset.sha256.isEmpty()) return true;
+        if (file == null || !file.exists()) return false;
+        return asset.sha256.equalsIgnoreCase(sha256Of(file));
+    }
+
+    private static String sha256Of(File file) {
+        try (java.io.InputStream in = new java.io.FileInputStream(file)) {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[1 << 16];
+            int r;
+            while ((r = in.read(buf)) != -1) md.update(buf, 0, r);
+            StringBuilder sb = new StringBuilder(64);
+            for (byte b : md.digest()) sb.append(Character.forDigit((b >> 4) & 0xF, 16))
+                    .append(Character.forDigit(b & 0xF, 16));
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
         }
     }
 

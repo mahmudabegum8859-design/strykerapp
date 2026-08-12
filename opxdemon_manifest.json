@@ -179,15 +179,30 @@
     }
   },
   "app": {
-    "versionCode": 3,
-    "versionName": "1.3",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.3/OPXdemon-1.3.apk",
-    "sha256": "433b5dc859fabf68f765f32aaf605fa5085342bb2864d17827a3e4526ecf9e12",
-    "size": 27496311,
+    "versionCode": 4,
+    "versionName": "1.4",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.4/OPXdemon-1.4.apk",
+    "sha256": "797bf6e3538b747f490a4dcb37b47889318c9b853cff1b22ee8163cab2761a3c",
+    "size": 27500407,
     "mandatory": false,
-    "changelog": "OPXdemon 1.3\n- All payloads (rooted + rootless) now download from the 'chroot + rootless core files' release.\n- Multi-architecture rootless engine: pick arm64 / armhf / i386 / amd64 guest on the setup screen.\n- armhf / i386 / amd64 kernels, initrds, rootfs and static QEMU binaries are boot-verified in QEMU but not device-tested.\n- versionCode 3, versionName 1.3."
+    "changelog": "OPXdemon 1.4\n- Automatic payload refresh: the rootless engine now compares the release manifest with what is installed and re-downloads changed files (kernel / initrd / QEMU / rootfs) before boot.\n- Ships the USB Wi-Fi rootfs: every architecture now includes 160+ wireless kernel modules (rtl8xxxu incl. RTL8188FTV, rt2800usb, mt76, ath9k_htc, zd1211rw) and full firmware (realtek / ralink / mediatek / atheros) so USB adapters work in the guest with monitor mode + injection.\n- Existing installs update automatically on the next VM start (one-time download of the new rootfs).\n- versionCode 4, versionName 1.4."
   },
   "news": [
+    {
+      "id": 4,
+      "title": "OPXdemon 1.4 — auto payload update + USB Wi-Fi in the VM",
+      "description": "OPXdemon 1.4 (versionCode 4): the rootless engine now auto-refreshes its payloads from the core-files release (kernel / initrd / QEMU / rootfs) when they change, so the new USB Wi-Fi rootfs reaches every device automatically. All architectures ship 160+ wireless drivers + firmware (rtl8xxxu incl. RTL8188FTV, rt2800usb, mt76x0u/x2u, ath9k_htc, zd1211rw) — USB adapters work in the guest with monitor mode + injection.",
+      "newsDate": "2026-08-12",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": true,
+      "actionbutton1": true,
+      "actionbutton1text": "Open release",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.4",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
     {
       "id": 3,
       "title": "OPXdemon 1.3 — all payloads from core-files + multi-arch VM",
@@ -195,7 +210,7 @@
       "newsDate": "2026-08-11",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
-      "pinned": true,
+      "pinned": false,
       "actionbutton1": true,
       "actionbutton1text": "Open release",
       "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/core-files",
