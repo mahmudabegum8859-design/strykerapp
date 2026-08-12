@@ -37,6 +37,16 @@ public final class ManifestService {
         }
     }
 
+    /**
+     * Drops the cached manifest so the next fetch() gets a fresh copy.
+     * Used when a payload download fails its size/checksum verification: that
+     * usually means the release changed after we cached the manifest, so the
+     * cached copy is stale and must not keep being served.
+     */
+    public static void invalidate(Context context) {
+        prefs(context).edit().remove(KEY_CACHE).apply();
+    }
+
     static SharedPreferences prefs(Context context) {
         return context.getApplicationContext()
                 .getSharedPreferences(OPXDemonEndpoints.PREFS, Context.MODE_PRIVATE);

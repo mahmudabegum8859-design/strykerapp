@@ -106,8 +106,8 @@
         },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs.imgz",
-          "sha256": "f80c2b1e2433c3036aa745da2a5935cf5dd61b65b17bbeabae87b49bd68a12ef",
-          "size": 427974567
+          "sha256": "a4cda852b0110ab24985eff71ab64846d39c24dcc1cb58bffe98f6b2339a7af0",
+          "size": 462418320
         }
       },
       "armhf": {
@@ -179,15 +179,30 @@
     }
   },
   "app": {
-    "versionCode": 4,
-    "versionName": "1.4",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.4/OPXdemon-1.4.apk",
-    "sha256": "797bf6e3538b747f490a4dcb37b47889318c9b853cff1b22ee8163cab2761a3c",
-    "size": 27500407,
+    "versionCode": 5,
+    "versionName": "1.4.1",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.4.1/OPXdemon-1.4.1.apk",
+    "sha256": "45962d26423c85154435cf0fd601633d0a3b67fbea51323ef30eed1653eb5738",
+    "size": 27500415,
     "mandatory": false,
-    "changelog": "OPXdemon 1.4\n- Automatic payload refresh: the rootless engine now compares the release manifest with what is installed and re-downloads changed files (kernel / initrd / QEMU / rootfs) before boot.\n- Ships the USB Wi-Fi rootfs: every architecture now includes 160+ wireless kernel modules (rtl8xxxu incl. RTL8188FTV, rt2800usb, mt76, ath9k_htc, zd1211rw) and full firmware (realtek / ralink / mediatek / atheros) so USB adapters work in the guest with monitor mode + injection.\n- Existing installs update automatically on the next VM start (one-time download of the new rootfs).\n- versionCode 4, versionName 1.4."
+    "changelog": "OPXdemon 1.4.1 (hotfix)\n- Fixed \"Size mismatch\" during rootless install/update: the per-architecture manifest entry for arm64 still pointed at the previous rootfs size/sha256, so the download of the new rootfs failed verification. All rootfs entries (flat + arm64/armhf/i386/amd64) now match the release.\n- Installer self-heals on stale manifests: if a payload download fails size/checksum verification, the app now drops the cached manifest, fetches a fresh one and retries once, so a release update can never brick the install again.\n- versionCode 5, versionName 1.4.1."
   },
   "news": [
+    {
+      "id": 5,
+      "title": "OPXdemon 1.4.1 — hotfix: rootfs size mismatch + stale-manifest self-heal",
+      "description": "OPXdemon 1.4.1 (versionCode 5): fixes the \"Size mismatch: got 462418320, expected 427974567\" error during rootless install (the arm64 per-arch manifest entry was stale). The installer now also self-heals: any size/checksum mismatch drops the cached manifest, fetches a fresh one and retries once, so future payload updates can never block the install.",
+      "newsDate": "2026-08-12",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": true,
+      "actionbutton1": true,
+      "actionbutton1text": "Open release",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.4.1",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
     {
       "id": 4,
       "title": "OPXdemon 1.4 — auto payload update + USB Wi-Fi in the VM",
@@ -195,7 +210,7 @@
       "newsDate": "2026-08-12",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
-      "pinned": true,
+      "pinned": false,
       "actionbutton1": true,
       "actionbutton1text": "Open release",
       "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.4",

@@ -157,28 +157,32 @@ public final class QemuInstaller {
             QemuDownloader.Bundle b = QemuDownloader.resolve(context);
 
             stage(p, Stage.EXTRACTING_QEMU);
-            if (!fetch(b.qemu, RootlessPaths.qemuBin(context), "QEMU", p)) return false;
+            if (fetch(context, b.qemu, RootlessPaths.qemuBin(context), "QEMU", p) == null) return false;
             RootlessPaths.qemuBin(context).setExecutable(true, false);
 
             stage(p, Stage.EXTRACTING_KERNEL);
-            if (!fetch(b.kernel, RootlessPaths.kernel(context), "kernel", p)) return false;
-            if (!fetch(b.initrd, RootlessPaths.initrd(context), "initrd", p)) return false;
+            if (fetch(context, b.kernel, RootlessPaths.kernel(context), "kernel", p) == null) return false;
+            if (fetch(context, b.initrd, RootlessPaths.initrd(context), "initrd", p) == null) return false;
 
             stage(p, Stage.EXTRACTING_LIBS);
             if (RootlessPaths.arch(context).needsLibslirp
                     && b.libslirp != null && b.libslirp.isUsable()) {
-                if (!fetch(b.libslirp, RootlessPaths.libslirp(context), "libslirp.so", p)) return false;
+                if (fetch(context, b.libslirp, RootlessPaths.libslirp(context),
+                        "libslirp.so", p) == null) return false;
             }
 
             stage(p, Stage.DECOMPRESSING_ROOTFS);
             File rootfs = RootlessPaths.rootfs(context);
-            boolean compressed = b.rootfs != null && b.rootfs.url != null
-                    && (b.rootfs.url.endsWith(".imgz") || b.rootfs.url.endsWith(".gz"));
+            RemoteManifest.Asset rootfsAsset = b.rootfs;
+            boolean compressed = rootfsAsset != null && rootfsAsset.url != null
+                    && (rootfsAsset.url.endsWith(".imgz") || rootfsAsset.url.endsWith(".gz"));
             if (!compressed) {
-                if (!fetch(b.rootfs, rootfs, "rootfs.img", p)) return false;
+                rootfsAsset = fetch(context, rootfsAsset, rootfs, "rootfs.img", p);
+                if (rootfsAsset == null) return false;
             } else {
                 File archive = new File(base, "rootfs.download");
-                if (!fetch(b.rootfs, archive, "rootfs", p)) return false;
+                rootfsAsset = fetch(context, rootfsAsset, archive, "rootfs", p);
+                if (rootfsAsset == null) return false;
                 log(p, 1, "Decompressing rootfs (this can take a minute)");
                 if (!gunzipFile(archive, rootfs, p)) {
                     //noinspection ResultOfMethodCallIgnored
@@ -195,9 +199,12 @@ public final class QemuInstaller {
             if (ok) {
                 // Remember which release this rootfs came from so the engine can
                 // detect newer payloads (e.g. the USB Wi-Fi firmware release) on
-                // later boots and refresh them automatically.
-                PayloadState.storeRootfs(context, b.rootfs == null ? null : b.rootfs.sha256,
-                        b.rootfs == null ? null : b.rootfs.url);
+                // later boots and refresh them automatically. Use the asset that
+                // was actually installed, which may be a freshly resolved copy
+                // after a stale-manifest retry.
+                PayloadState.storeRootfs(context,
+                        rootfsAsset == null ? null : rootfsAsset.sha256,
+                        rootfsAsset == null ? null : rootfsAsset.url);
                 stage(p, Stage.DONE);
                 log(p, 2, "Rootless engine installed");
             } else {
@@ -251,21 +258,22 @@ public final class QemuInstaller {
         boolean any = false;
 
         if (!fileMatches(RootlessPaths.qemuBin(context), b.qemu)) {
-            if (!fetch(b.qemu, RootlessPaths.qemuBin(context), "QEMU", p)) return false;
+            if (fetch(context, b.qemu, RootlessPaths.qemuBin(context), "QEMU", p) == null) return false;
             RootlessPaths.qemuBin(context).setExecutable(true, false);
             any = true;
         }
         if (!fileMatches(RootlessPaths.kernel(context), b.kernel)) {
-            if (!fetch(b.kernel, RootlessPaths.kernel(context), "kernel", p)) return false;
+            if (fetch(context, b.kernel, RootlessPaths.kernel(context), "kernel", p) == null) return false;
             any = true;
         }
         if (!fileMatches(RootlessPaths.initrd(context), b.initrd)) {
-            if (!fetch(b.initrd, RootlessPaths.initrd(context), "initrd", p)) return false;
+            if (fetch(context, b.initrd, RootlessPaths.initrd(context), "initrd", p) == null) return false;
             any = true;
         }
         if (RootlessPaths.arch(context).needsLibslirp && b.libslirp != null && b.libslirp.isUsable()
                 && !fileMatches(RootlessPaths.libslirp(context), b.libslirp)) {
-            if (!fetch(b.libslirp, RootlessPaths.libslirp(context), "libslirp.so", p)) return false;
+            if (fetch(context, b.libslirp, RootlessPaths.libslirp(context),
+                    "libslirp.so", p) == null) return false;
             any = true;
         }
 
@@ -275,7 +283,8 @@ public final class QemuInstaller {
         if (!PayloadState.rootfsMatches(context, b.rootfs)) {
             File rootfs = RootlessPaths.rootfs(context);
             File archive = new File(RootlessPaths.base(context), "rootfs.download");
-            if (!fetch(b.rootfs, archive, "rootfs", p)) return false;
+            RemoteManifest.Asset rootfsAsset = fetch(context, b.rootfs, archive, "rootfs", p);
+            if (rootfsAsset == null) return false;
             log(p, 1, "Decompressing updated rootfs (this can take a minute)");
             if (!gunzipFile(archive, rootfs, p)) {
                 //noinspection ResultOfMethodCallIgnored
@@ -284,7 +293,7 @@ public final class QemuInstaller {
             }
             //noinspection ResultOfMethodCallIgnored
             archive.delete();
-            PayloadState.storeRootfs(context, b.rootfs.sha256, b.rootfs.url);
+            PayloadState.storeRootfs(context, rootfsAsset.sha256, rootfsAsset.url);
             any = true;
         }
 
@@ -316,25 +325,75 @@ public final class QemuInstaller {
         }
     }
 
-    private static boolean fetch(com.opxdemon.ota.RemoteManifest.Asset asset, File dest,
-                                 String label, Progress p) {
+    /**
+     * Downloads one payload with sha256/size verification.
+     *
+     * @return the asset that was actually installed — the requested one, or a
+     *         freshly resolved copy when a size/checksum mismatch proved the
+     *         cached manifest was stale — or {@code null} on failure.
+     */
+    private static com.opxdemon.ota.RemoteManifest.Asset fetch(Context context,
+            com.opxdemon.ota.RemoteManifest.Asset asset, File dest, String label, Progress p) {
         if (asset == null || !asset.isUsable()) {
             log(p, 3, label + ": no download URL in the manifest");
-            return false;
+            return null;
         }
-        log(p, 1, "GET " + asset.url);
-        com.opxdemon.ota.VerifiedDownloader.Result r =
-                com.opxdemon.ota.VerifiedDownloader.download(
-                        asset.url, dest, asset.sha256, asset.size,
-                        (done, total) -> { if (p != null) p.onBytes(label, done); });
+        com.opxdemon.ota.RemoteManifest.Asset used = asset;
+        com.opxdemon.ota.VerifiedDownloader.Result r = doFetch(used, dest, label, p);
+
+        // A size/checksum mismatch usually means the release payload changed
+        // after we cached the manifest. Drop the stale cache, fetch the
+        // manifest again and retry once with the fresh values instead of
+        // failing the whole install.
+        if (!r.ok && r.error != null
+                && (r.error.startsWith("Size mismatch") || r.error.startsWith("Checksum"))) {
+            log(p, 1, label + ": " + r.error
+                    + " — the release changed; refreshing the manifest and retrying once");
+            com.opxdemon.ota.ManifestService.invalidate(context);
+            com.opxdemon.ota.RemoteManifest.Asset fresh = resolveFresh(context, label);
+            if (fresh != null && fresh.isUsable() && !sameAsset(used, fresh)) {
+                used = fresh;
+                r = doFetch(used, dest, label, p);
+            }
+        }
+
         if (!r.ok) {
             log(p, 3, label + ": " + r.error);
-            return false;
-        }            if (asset.sha256 == null || asset.sha256.isEmpty()) {
-                log(p, 1, label + " downloaded but the manifest carries no checksum");
-            }
+            return null;
+        }
+        if (used.sha256 == null || used.sha256.isEmpty()) {
+            log(p, 1, label + " downloaded but the manifest carries no checksum");
+        }
         log(p, 2, label + " ready (" + mb(dest.length()) + ")");
-        return true;
+        return used;
+    }
+
+    private static com.opxdemon.ota.VerifiedDownloader.Result doFetch(
+            com.opxdemon.ota.RemoteManifest.Asset asset, File dest, String label, Progress p) {
+        log(p, 1, "GET " + asset.url);
+        return com.opxdemon.ota.VerifiedDownloader.download(
+                asset.url, dest, asset.sha256, asset.size,
+                (done, total) -> { if (p != null) p.onBytes(label, done); });
+    }
+
+    /** Re-resolves one payload from a freshly fetched manifest. */
+    private static com.opxdemon.ota.RemoteManifest.Asset resolveFresh(Context context, String label) {
+        QemuDownloader.Bundle b = QemuDownloader.resolve(context);
+        if (b == null) return null;
+        if ("QEMU".equals(label)) return b.qemu;
+        if ("kernel".equals(label)) return b.kernel;
+        if ("initrd".equals(label)) return b.initrd;
+        if ("libslirp.so".equals(label)) return b.libslirp;
+        if ("rootfs".equals(label)) return b.rootfs;
+        return null;
+    }
+
+    private static boolean sameAsset(com.opxdemon.ota.RemoteManifest.Asset a,
+                                    com.opxdemon.ota.RemoteManifest.Asset b) {
+        return a == b || (a != null && b != null
+                && java.util.Objects.equals(a.url, b.url)
+                && java.util.Objects.equals(a.sha256, b.sha256)
+                && a.size == b.size);
     }
 
     private static boolean gunzipFile(File src, File dest, Progress p) {
