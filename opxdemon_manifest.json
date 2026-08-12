@@ -59,8 +59,8 @@
     "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
     "qemu": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-      "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
-      "size": 43800304
+      "sha256": "d9affccdb3a61d70529502b65efda5373032f21005ec2b841d98f725c7ef96a9",
+      "size": 35919832
     },
     "kernel": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
@@ -86,8 +86,8 @@
       "arm64": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
-          "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
-          "size": 43800304
+          "sha256": "d9affccdb3a61d70529502b65efda5373032f21005ec2b841d98f725c7ef96a9",
+          "size": 35919832
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image",
@@ -113,8 +113,8 @@
       "armhf": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-arm",
-          "sha256": "0a936fcfacea6c946b870672c38bc9655e515e157f27ebb713cd0c6f4790c733",
-          "size": 31357920
+          "sha256": "f2672cd9f4c78002f101b16e1a5e2fccff3104c161820d865fba2f6840dffb67",
+          "size": 33069032
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-arm",
@@ -135,8 +135,8 @@
       "i386": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-i386",
-          "sha256": "b966220c43a3f2e93d7959571a7f0b215b70a7b59c5a3bf30b54764a5511db49",
-          "size": 28982168
+          "sha256": "9a6975e037fe0190d21c7e5a37d7585ffd3b71778a662ca6f55322ed6db38dbb",
+          "size": 30524144
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-i386",
@@ -157,8 +157,8 @@
       "amd64": {
         "qemu": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-x86_64",
-          "sha256": "d5d250ae73c2748fd1b6d407447695a0a73a45774925c08691de41cd90de126b",
-          "size": 29024872
+          "sha256": "8dae90dcdf5b3d592dcceb13f0656c50d2d6ca78d6404c31a0189cda7713cf1a",
+          "size": 30561264
         },
         "kernel": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/Image-amd64",
