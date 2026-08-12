@@ -56,7 +56,7 @@
   },
   "rootless": {
     "version": "rootless-main",
-    "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested (no sha256 yet, size is exact).",
+    "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
     "qemu": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
       "sha256": "2a87f531371b3f8d45141d48632e0dbe2c3d968fbcb385ba105d671479fb8c99",
@@ -79,8 +79,8 @@
     },
     "rootfs": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs.imgz",
-      "sha256": "f80c2b1e2433c3036aa745da2a5935cf5dd61b65b17bbeabae87b49bd68a12ef",
-      "size": 427974567
+      "sha256": "a4cda852b0110ab24985eff71ab64846d39c24dcc1cb58bffe98f6b2339a7af0",
+      "size": 462418320
     },
     "arch": {
       "arm64": {
@@ -128,8 +128,8 @@
         },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-arm.imgz",
-          "sha256": "",
-          "size": 192983753
+          "sha256": "d4ec02ecca8e868a6d478a68e76df318ac35d56b1218ebb616a461f5e0e3dbe0",
+          "size": 195092378
         }
       },
       "i386": {
@@ -150,8 +150,8 @@
         },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-i386.imgz",
-          "sha256": "",
-          "size": 229744516
+          "sha256": "9a90b4b362ea7191d7a26bcf3b8581b4dfe031bc5eb0bc6b7edb32b204d8d725",
+          "size": 231838653
         }
       },
       "amd64": {
@@ -172,8 +172,8 @@
         },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-amd64.imgz",
-          "sha256": "0d28292f9ef2920bd40f819354f08440b24b4e40214a76ab9dea522407cf27df",
-          "size": 292768756
+          "sha256": "75453897150060211d56763347cfb4030150f589a662af072c92f1d3b0f36db2",
+          "size": 294879268
         }
       }
     }
