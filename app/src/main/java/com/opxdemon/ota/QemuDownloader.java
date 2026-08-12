@@ -67,7 +67,7 @@ public final class QemuDownloader {
                 new RemoteManifest.Asset(base + arch.qemuName, "", 0),
                 new RemoteManifest.Asset(base + arch.kernelName, "", 0),
                 new RemoteManifest.Asset(base + arch.initrdName, "", 0),
-                null,
+                new RemoteManifest.Asset(base + "libslirp.so", "", 0),
                 new RemoteManifest.Asset(base + "rootfs-" + arch.key + ".imgz", "", 0));
     }
 }

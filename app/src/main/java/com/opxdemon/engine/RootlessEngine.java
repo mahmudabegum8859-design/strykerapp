@@ -108,17 +108,13 @@ public final class RootlessEngine {
             if (listener != null) listener.onFailed(lastError);
             return false;
         }
-        if (!isInstalled()) {
-            lastError = "Rootless artifacts not installed";
-            if (listener != null) listener.onFailed(lastError);
-            return false;
-        }
-
         // Refresh engine payloads when the release changed (new rootfs with
         // driver/firmware support, kernel/initrd/QEMU updates, ...). Best
         // effort: when the update fails (no network) we keep the old files and
         // boot anyway. Files are replaced atomically, so an interrupted update
-        // can never leave the engine half-broken.
+        // can never leave the engine half-broken. Runs BEFORE the install gate
+        // so a stale or partial install (e.g. an old engine that predates the
+        // bionic libslirp requirement) is repaired by the update itself.
         try {
             if (QemuInstaller.needsUpdate(app)) {
                 note(listener, "Updated payloads available — refreshing engine files (first boot after an update downloads them once)");
@@ -126,6 +122,12 @@ public final class RootlessEngine {
             }
         } catch (Throwable t) {
             Log.w(TAG, "payload update skipped: " + t.getMessage());
+        }
+
+        if (!isInstalled()) {
+            lastError = "Rootless artifacts not installed";
+            if (listener != null) listener.onFailed(lastError);
+            return false;
         }
 
         lastBootUsedFallback = false;

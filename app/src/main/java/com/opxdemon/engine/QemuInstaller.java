@@ -225,8 +225,11 @@ public final class QemuInstaller {
      * through the fingerprint stored at install time.
      */
     public static boolean needsUpdate(Context context) {
-        if (!RootlessEngine.get(context).isInstalled()) return false;
         if (RootlessEngine.get(context).isRunning()) return false;
+        // Nothing installed at all — a fresh install is required, not an update.
+        // Once the QEMU binary exists we treat missing/stale files (including a
+        // pre-libslirp install that predates the bionic engine) as repairable.
+        if (!RootlessPaths.qemuBin(context).exists()) return false;
         QemuDownloader.Bundle b = QemuDownloader.resolve(context);
         if (b == null || !b.isUsable()) return false;
         if (!PayloadState.rootfsMatches(context, b.rootfs)) return true;

@@ -10,15 +10,16 @@ package com.opxdemon.engine;
  *   - i386   (not tested on hardware, QEMU boot-verified):  qemu-system-i386 + Image-i386 + initrd-i386.img + rootfs-i386.imgz
  *   - amd64  (not tested on hardware, QEMU boot-verified):  qemu-system-x86_64 + Image-amd64 + initrd-amd64.img + rootfs-amd64.imgz
  *
- * The new qemu-system-* binaries are fully static (musl) and carry a built-in
- * slirp, so only the legacy arm64 binary needs the separate libslirp.so.
+ * All four qemu-system-* binaries are bionic-linked against the shared
+ * libslirp.so (NEEDED libc/libm/libdl/libslirp), so every guest architecture
+ * downloads the separate libslirp.so from the release.
  */
 public enum GuestArch {
 
     ARM64("arm64", "qemu-system-aarch64", "Image", "initrd.img", true),
-    ARMHF("armhf", "qemu-system-arm", "Image-arm", "initrd-arm.img", false),
-    I386("i386", "qemu-system-i386", "Image-i386", "initrd-i386.img", false),
-    AMD64("amd64", "qemu-system-x86_64", "Image-amd64", "initrd-amd64.img", false);
+    ARMHF("armhf", "qemu-system-arm", "Image-arm", "initrd-arm.img", true),
+    I386("i386", "qemu-system-i386", "Image-i386", "initrd-i386.img", true),
+    AMD64("amd64", "qemu-system-x86_64", "Image-amd64", "initrd-amd64.img", true);
 
     /** Key used in the OTA manifest, prefs and the release asset names. */
     public final String key;
@@ -28,7 +29,7 @@ public enum GuestArch {
     public final String kernelName;
     /** Release asset name of the guest initramfs. */
     public final String initrdName;
-    /** True when this host engine binary is the legacy dynamic one needing libslirp.so. */
+    /** True when this host engine binary links against the shared libslirp.so at runtime. */
     public final boolean needsLibslirp;
 
     GuestArch(String key, String qemuName, String kernelName, String initrdName,

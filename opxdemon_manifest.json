@@ -56,7 +56,7 @@
   },
   "rootless": {
     "version": "rootless-main",
-    "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their static QEMU binaries are boot-verified in QEMU but not device-tested. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
+    "note": "QEMU VM payloads per guest architecture, all served from the 'chroot + rootless core files' release. arm64 is the tested set; armhf / i386 / amd64 payloads and their QEMU binaries are boot-verified in QEMU but not device-tested. All four QEMU binaries are bionic-linked and need the shared libslirp.so, so every architecture downloads it. All rootfs images ship the full kernel module set (mac80211/cfg80211 + rtl8xxxu, rt2800usb, mt76, ath9k_htc and 160+ wireless drivers) plus comprehensive firmware (realtek / ralink / mediatek / atheros / zd1211) - USB Wi-Fi adapters work in the guest with monitor mode + injection support.",
     "qemu": {
       "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/qemu-system-aarch64",
       "sha256": "d9affccdb3a61d70529502b65efda5373032f21005ec2b841d98f725c7ef96a9",
@@ -126,6 +126,11 @@
           "sha256": "",
           "size": 25071866
         },
+        "libslirp": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/libslirp.so",
+          "sha256": "226372426fda32c9fccd8e831d0901a86bfff3c3e6f7a60336d6dde149f756c4",
+          "size": 1145496
+        },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-arm.imgz",
           "sha256": "d4ec02ecca8e868a6d478a68e76df318ac35d56b1218ebb616a461f5e0e3dbe0",
@@ -147,6 +152,11 @@
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/initrd-i386.img",
           "sha256": "",
           "size": 28439360
+        },
+        "libslirp": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/libslirp.so",
+          "sha256": "226372426fda32c9fccd8e831d0901a86bfff3c3e6f7a60336d6dde149f756c4",
+          "size": 1145496
         },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-i386.imgz",
@@ -170,6 +180,11 @@
           "sha256": "b8967ae268739b01ee39f7d0e3f6e5ea07bda0bed2b0d2098eb6f4b68582377b",
           "size": 36235956
         },
+        "libslirp": {
+          "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/libslirp.so",
+          "sha256": "226372426fda32c9fccd8e831d0901a86bfff3c3e6f7a60336d6dde149f756c4",
+          "size": 1145496
+        },
         "rootfs": {
           "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/core-files/rootfs-amd64.imgz",
           "sha256": "75453897150060211d56763347cfb4030150f589a662af072c92f1d3b0f36db2",
@@ -179,15 +194,30 @@
     }
   },
   "app": {
-    "versionCode": 5,
-    "versionName": "1.4.1",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.4.1/OPXdemon-1.4.1.apk",
-    "sha256": "45962d26423c85154435cf0fd601633d0a3b67fbea51323ef30eed1653eb5738",
-    "size": 27500415,
+    "versionCode": 6,
+    "versionName": "1.5",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.5/OPXdemon-1.5.apk",
+    "sha256": "936094eec55ab8261e099fd17bef4195b2498e18b32b8abd8de0684f13d72df5",
+    "size": 27500411,
     "mandatory": false,
-    "changelog": "OPXdemon 1.4.1 (hotfix)\n- Fixed \"Size mismatch\" during rootless install/update: the per-architecture manifest entry for arm64 still pointed at the previous rootfs size/sha256, so the download of the new rootfs failed verification. All rootfs entries (flat + arm64/armhf/i386/amd64) now match the release.\n- Installer self-heals on stale manifests: if a payload download fails size/checksum verification, the app now drops the cached manifest, fetches a fresh one and retries once, so a release update can never brick the install again.\n- versionCode 5, versionName 1.4.1."
+    "changelog": "OPXdemon 1.5\n- Fixed \"QEMU exited during boot (code 159)\" (SIGSYS): the rootless engine now ships the bionic-linked QEMU 11.0.2 rebuild for all four guest architectures. The earlier musl-static build hit a syscall blocked by the Android app-sandbox seccomp policy and crashed at boot.\n- USB Wi-Fi adapters now enumerate correctly in the guest: QEMU's USBDEVFS_GET_SPEED ioctl bug is patched, so adapters are no longer reported as low-speed (\"Invalid ep0 maxpacket: 64\" gone) and monitor mode + injection work.\n- Multi-arch fix: armhf / i386 / amd64 QEMU binaries are bionic-linked too, so the engine now downloads libslirp.so for every guest architecture, not just arm64.\n- Payload refresh self-repairs partial/stale installs: the engine refreshes changed files (and installs missing libslirp.so) before every boot.\n- versionCode 6, versionName 1.5."
   },
   "news": [
+    {
+      "id": 6,
+      "title": "OPXdemon 1.5 \u2014 QEMU boot fix (code 159) + USB Wi-Fi enumeration + multi-arch libslirp",
+      "description": "OPXdemon 1.5 (versionCode 6): fixes the \"QEMU exited during boot (code 159)\" crash with a bionic-linked QEMU 11.0.2 rebuild (the musl build hit a sandbox-blocked syscall). USB Wi-Fi adapters now enumerate at the right speed (USBDEVFS_GET_SPEED fix), and armhf / i386 / amd64 guests now download libslirp.so like arm64. Payload refresh also repairs stale or partial installs automatically before boot.",
+      "newsDate": "2026-08-12",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": true,
+      "actionbutton1": true,
+      "actionbutton1text": "Open release",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.5",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
     {
       "id": 5,
       "title": "OPXdemon 1.4.1 \u2014 hotfix: rootfs size mismatch + stale-manifest self-heal",
@@ -195,7 +225,7 @@
       "newsDate": "2026-08-12",
       "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
       "imageUrl": "",
-      "pinned": true,
+      "pinned": false,
       "actionbutton1": true,
       "actionbutton1text": "Open release",
       "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.4.1",
