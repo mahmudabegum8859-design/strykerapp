@@ -194,15 +194,30 @@
     }
   },
   "app": {
-    "versionCode": 6,
-    "versionName": "1.5",
-    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.5/OPXdemon-1.5.apk",
-    "sha256": "936094eec55ab8261e099fd17bef4195b2498e18b32b8abd8de0684f13d72df5",
-    "size": 27500411,
+    "versionCode": 9,
+    "versionName": "1.7",
+    "url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/download/v1.7/OPXdemon-1.7.apk",
+    "sha256": "5e89e00fe476cf132652c6286756ed5f33460fb62b642f00dda2cc22cc5adc40",
+    "size": 20957063,
     "mandatory": false,
-    "changelog": "OPXdemon 1.5\n- Fixed \"QEMU exited during boot (code 159)\" (SIGSYS): the rootless engine now ships the bionic-linked QEMU 11.0.2 rebuild for all four guest architectures. The earlier musl-static build hit a syscall blocked by the Android app-sandbox seccomp policy and crashed at boot.\n- USB Wi-Fi adapters now enumerate correctly in the guest: QEMU's USBDEVFS_GET_SPEED ioctl bug is patched, so adapters are no longer reported as low-speed (\"Invalid ep0 maxpacket: 64\" gone) and monitor mode + injection work.\n- Multi-arch fix: armhf / i386 / amd64 QEMU binaries are bionic-linked too, so the engine now downloads libslirp.so for every guest architecture, not just arm64.\n- Payload refresh self-repairs partial/stale installs: the engine refreshes changed files (and installs missing libslirp.so) before every boot.\n- versionCode 6, versionName 1.5."
+    "changelog": "OPXdemon 1.7\n- Universal APK: the app now installs on every Android device — arm64-v8a, armeabi-v7a (32-bit ARM), x86 and x86_64.\n- All native components (terminal + protected JNI) are compiled for all four ABIs.\n- On non-arm64 devices Rootless setup is hidden; the rooted (chroot) engine picks the rootfs matching the device ABI.\n- versionCode 9, versionName 1.7."
   },
   "news": [
+    {
+      "id": 9,
+      "title": "OPXdemon 1.7 — universal APK for every phone",
+      "description": "OPXdemon 1.7 (versionCode 9): the APK now installs on every Android device. Native libraries are compiled for arm64-v8a, armeabi-v7a (32-bit ARM), x86 and x86_64, so 32-bit and Intel devices can install and run the app too. Rootless mode stays arm64-only (it needs an arm64 QEMU VM); rooted chroot mode works on any ABI.",
+      "newsDate": "2026-08-12",
+      "newsUrl": "https://github.com/mahmudabegum8859-design/strykerapp",
+      "imageUrl": "",
+      "pinned": true,
+      "actionbutton1": true,
+      "actionbutton1text": "Open release",
+      "actionbutton1url": "https://github.com/mahmudabegum8859-design/strykerapp/releases/tag/v1.7",
+      "actionbutton2": false,
+      "actionbutton2text": "",
+      "actionbutton2url": ""
+    },
     {
       "id": 6,
       "title": "OPXdemon 1.5 \u2014 QEMU boot fix (code 159) + USB Wi-Fi enumeration + multi-arch libslirp",
