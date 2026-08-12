@@ -36,6 +36,12 @@ public final class UsbPassthroughManager {
     private volatile boolean receiverRegistered = false;
     private volatile CountDownLatch pendingPermission;
     private volatile int awaitingDeviceId = -1;
+    private volatile String lastAttachError = "";
+
+    /** Why the last attach failed, for the UI to show a real reason. */
+    public String lastAttachError() {
+        return lastAttachError == null ? "" : lastAttachError;
+    }
 
     public interface PermissionCallback { void onResult(boolean granted, UsbDevice device); }
 
@@ -110,29 +116,49 @@ public final class UsbPassthroughManager {
     }
 
     public synchronized boolean attach(UsbDevice device) {
-        if (device == null || qmp == null) return false;
+        if (device == null || qmp == null) {
+            lastAttachError = qmp == null
+                    ? "VM control channel is not ready — wait for the VM to finish booting, then retry"
+                    : "no adapter selected";
+            return false;
+        }
         if (attached.containsKey(device.getDeviceId())) return true;
-        UsbDeviceConnection connection = usbManager.openDevice(device);
+        UsbDeviceConnection connection = openDeviceWithRetry(device);
         if (connection == null) {
+            lastAttachError = "Android refused to open the adapter — replug it and retry "
+                    + "(another app may currently hold it)";
             Log.w(TAG, "openDevice returned null for " + device.getDeviceName());
             return false;
         }
         claimInterfaces(device, connection);
+        // On AOSP this returns the real usbfs fd for an open connection. Some OEM
+        // ROMs still block it; report that instead of a generic "grant USB access".
+        int rawFd = connection.getFileDescriptor();
+        if (rawFd < 0) {
+            lastAttachError = "Android blocked the USB file descriptor on this ROM — "
+                    + "replug the adapter and retry, or use the rooted mode";
+            try { connection.close(); } catch (Throwable ignored) {}
+            return false;
+        }
         ParcelFileDescriptor pfd;
         try {
-            pfd = ParcelFileDescriptor.fromFd(connection.getFileDescriptor());
+            pfd = ParcelFileDescriptor.fromFd(rawFd);
         } catch (java.io.IOException e) {
-            connection.close();
+            lastAttachError = "Could not wrap the USB fd (" + e.getMessage() + ")";
+            try { connection.close(); } catch (Throwable ignored) {}
             return false;
         }
         if (pfd == null) {
-            connection.close();
+            lastAttachError = "Could not wrap the USB fd";
+            try { connection.close(); } catch (Throwable ignored) {}
             return false;
         }
         int fdSetId = qmp.addFd(pfd.getFileDescriptor());
         if (fdSetId < 0) {
+            lastAttachError = "VM rejected the USB fd — is the VM fully booted? "
+                    + "Restart the VM, then retry";
             try { pfd.close(); } catch (Exception ignored) {}
-            connection.close();
+            try { connection.close(); } catch (Throwable ignored) {}
             return false;
         }
         String qemuId = "opxdemon_usb_" + device.getDeviceId();
@@ -143,18 +169,37 @@ public final class UsbPassthroughManager {
             args.put("bus", "usbhc0.0");
             args.put("hostdevice", "/dev/fdset/" + fdSetId);
             if (!qmp.deviceAdd(args)) {
+                lastAttachError = "VM refused to add the USB adapter — check the boot log "
+                        + "(driver/firmware for this chipset may be missing)";
                 qmp.removeFd(fdSetId);
                 try { pfd.close(); } catch (Exception ignored) {}
-                connection.close();
+                try { connection.close(); } catch (Throwable ignored) {}
                 return false;
             }
         } catch (JSONException e) {
+            lastAttachError = "Could not build the USB attach command";
+            qmp.removeFd(fdSetId);
+            try { pfd.close(); } catch (Exception ignored) {}
+            try { connection.close(); } catch (Throwable ignored) {}
             return false;
         }
         registerReceiver();
         attached.put(device.getDeviceId(), new Attached(connection, pfd, fdSetId, qemuId));
+        lastAttachError = "";
         Log.i(TAG, "Attached USB device " + device.getDeviceName() + " as " + qemuId);
         return true;
+    }
+
+    /** openDevice can briefly fail right after the permission dialog — retry a few times. */
+    private UsbDeviceConnection openDeviceWithRetry(UsbDevice device) {
+        UsbDeviceConnection c = usbManager.openDevice(device);
+        if (c != null) return c;
+        for (int i = 0; i < 3; i++) {
+            try { Thread.sleep(500); } catch (InterruptedException e) { break; }
+            c = usbManager.openDevice(device);
+            if (c != null) return c;
+        }
+        return null;
     }
 
     private void claimInterfaces(UsbDevice device, UsbDeviceConnection connection) {

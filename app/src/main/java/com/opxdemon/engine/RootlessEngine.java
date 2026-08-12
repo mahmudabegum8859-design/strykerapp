@@ -18,7 +18,13 @@ import java.util.concurrent.Executors;
 public final class RootlessEngine {
 
     private static final String TAG = "RootlessEngine";
-    private static final int BOOT_TIMEOUT_MS = 150_000;
+    // First boot on a slow phone (TCG emulation + disk grow + resize2fs) can take
+    // ~170 s. We wait a base window and then extend it 60 s at a time as long as the
+    // guest keeps writing to the boot log, up to a hard cap. A QEMU that is stuck
+    // stops producing log output, so it bails out 60 s after the last progress.
+    private static final int BOOT_TIMEOUT_MS = 180_000;
+    private static final int BOOT_EXTEND_MS = 60_000;
+    private static final int BOOT_HARD_CAP_MS = 360_000;
     private static final String PROMPT_MARK = "__OPXDEMON_ID__";
 
     private static volatile RootlessEngine instance;
@@ -140,7 +146,8 @@ public final class RootlessEngine {
             lastError = reason;
             note(listener, "Boot failed (" + reason + ") — retrying with a safe profile");
             GuestExec.logToStore("VM boot failed (" + reason + "), falling back to the safe profile "
-                    + "(aio=threads, cache=writeback, no 9p share, no virtio-rng, no USB HC)");
+                    + "(aio=threads, cache=writeback, no 9p share, no virtio-rng). "
+                    + "USB passthrough stays on in the safe profile.");
             VmSpecs.setSafeBoot(prefs, true);
             lastBootUsedFallback = true;
             killAndAwait(12_000);
@@ -166,7 +173,12 @@ public final class RootlessEngine {
 
     private String attemptBoot(BootListener listener) {
         try {
-            killAndAwait(12_000);
+            // Kill any leftover QEMU WITHOUT going through stop(): stop() sets
+            // stopRequested=true, which would make this new boot attempt return
+            // "stopped" instantly — the loop you saw in the log where every retry
+            // died with "VM boot failed (stopped)" before it even started.
+            killProcessOnly(12_000);
+            stopRequested = false;
             clearStaleSockets();
             ensureExecutable();
             autoGrowDisk();
@@ -186,8 +198,14 @@ public final class RootlessEngine {
 
             new Thread(() -> pumpBootLog(proc, listener), "opxdemon-qemu-log").start();
 
-            long deadline = System.currentTimeMillis() + BOOT_TIMEOUT_MS;
-            while (System.currentTimeMillis() < deadline) {
+            File bootLog = RootlessPaths.bootLog(app);
+            long bootLogLen = -1;
+            long startedAt = System.currentTimeMillis();
+            long deadline = startedAt + BOOT_TIMEOUT_MS;
+            long hardCap = startedAt + BOOT_HARD_CAP_MS;
+            while (true) {
+                long now = System.currentTimeMillis();
+                if (now >= hardCap) break;
                 if (stopRequested) return "stopped";
                 if (!isAlive(proc)) {
                     return "QEMU exited during boot (code " + safeExit(proc) + "): " + lastLogProblem();
@@ -197,9 +215,18 @@ public final class RootlessEngine {
                     if (listener != null) listener.onBooted();
                     return null;
                 }
+                // The guest is still writing boot output -> it is making progress,
+                // so give it more time instead of failing a slow-but-healthy boot.
+                long len = bootLog.exists() ? bootLog.length() : 0;
+                if (len != bootLogLen) {
+                    bootLogLen = len;
+                    deadline = Math.min(now + BOOT_EXTEND_MS, hardCap);
+                }
+                if (now >= deadline) break;
                 sleep(1000);
             }
-            return "Boot timed out after " + (BOOT_TIMEOUT_MS / 1000) + "s";
+            long elapsed = (System.currentTimeMillis() - startedAt) / 1000;
+            return "Boot timed out after " + elapsed + "s with no guest output";
         } catch (Exception e) {
             Log.e(TAG, "start failed", e);
             return e.getMessage() == null ? e.toString() : e.getMessage();
@@ -318,6 +345,45 @@ public final class RootlessEngine {
             sleep(600);
         }
         if (p == null || !isAlive(p)) dyingProcess = null;
+    }
+
+    /**
+     * Kills a leftover QEMU before a new boot attempt WITHOUT setting stopRequested.
+     * stop() is meant for user-requested stops; using it here made every retry die
+     * instantly with "stopped" (see attemptBoot). We still detach USB devices and
+     * close the old QMP socket so the adapter is released for the new VM.
+     */
+    private void killProcessOnly(long timeoutMs) {
+        final UsbPassthroughManager oldUsb = usb;
+        final QmpClient oldQmp = qmp;
+        usb = null;
+        qmp = null;
+        booted = false;
+        guestPrompt = "";
+        if (oldUsb != null || oldQmp != null) {
+            new Thread(() -> {
+                try { if (oldUsb != null) oldUsb.detachAll(); } catch (Throwable ignored) {}
+                try { if (oldQmp != null) oldQmp.close(); } catch (Throwable ignored) {}
+            }, "opxdemon-vm-teardown").start();
+        }
+        Process live = qemuProcess;
+        Process dying = dyingProcess;
+        qemuProcess = null;
+        if (live == null && (dying == null || !isAlive(dying))) {
+            dyingProcess = null;
+            return;
+        }
+        Process target = live != null ? live : dying;
+        dyingProcess = target;
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline && isAlive(target)) {
+            sleep(200);
+        }
+        if (isAlive(target)) {
+            destroyForcibly(target);
+            sleep(600);
+        }
+        if (!isAlive(target)) dyingProcess = null;
     }
 
     private String lastLogProblem() {
@@ -482,7 +548,12 @@ public final class RootlessEngine {
             GuestExec.logToStore("guest is missing " + ATH9K_HTC_FW
                     + " — installing firmware-ath9k-htc (ath9k_htc dongles fail with "
                     + "\"Target is unresponsive\" without it)");
-            GuestExec.run("export DEBIAN_FRONTEND=noninteractive; "
+            // The guest often boots with an empty /etc/resolv.conf, which makes apt
+            // report "no network". Point DNS at the SLIRP user-net resolver and refresh
+            // the package index (with retries) before installing.
+            GuestExec.run("echo 'nameserver 10.0.2.3' > /etc/resolv.conf; "
+                    + "export DEBIAN_FRONTEND=noninteractive; "
+                    + "for i in 1 2 3; do apt-get update >/dev/null 2>&1 && break; sleep 3; done; "
                     + "apt-get install -y --no-install-recommends firmware-ath9k-htc wireless-regdb "
                     + ">/dev/null 2>&1; true");
             ArrayList<String> after = GuestExec.run(
@@ -645,7 +716,16 @@ public final class RootlessEngine {
 
     public synchronized boolean ensureUsbWifiAttached() {
         if (!isReady() && !startBlocking(null)) return false;
-        if (usb == null) return false;
+        if (usb == null) {
+            // The VM booted but the QMP/USB control channel did not come up
+            // (socket race right after boot) — reconnect it once and retry.
+            GuestExec.logToStore("USB: VM control channel was down — reconnecting…");
+            connectControl();
+        }
+        if (usb == null) {
+            GuestExec.logToStore("USB: VM control channel unavailable — cannot pass the adapter into the VM");
+            return false;
+        }
         int candidates = usb.pickWifiDevices().size();
         int count = usb.attachAllWifiDongles(20_000);
         if (count <= 0) {
@@ -785,9 +865,22 @@ public final class RootlessEngine {
 
     private void connectControl() {
         try {
-            qmp = new QmpClient(RootlessPaths.qmpSock(app).getAbsolutePath());
-            if (qmp.connect()) {
-                usb = new UsbPassthroughManager(app, qmp);
+            QmpClient c = null;
+            // The QMP unix socket can appear a moment after the guest answers the
+            // shell ping — retry briefly instead of permanently losing USB control.
+            for (int i = 0; i < 5; i++) {
+                try {
+                    c = new QmpClient(RootlessPaths.qmpSock(app).getAbsolutePath());
+                    if (c.connect()) break;
+                    c = null;
+                } catch (Throwable t) {
+                    c = null;
+                }
+                sleep(400);
+            }
+            if (c != null) {
+                qmp = c;
+                usb = new UsbPassthroughManager(app, c);
             } else {
                 Log.w(TAG, "QMP connect failed — USB passthrough unavailable");
             }

@@ -418,8 +418,10 @@ public class MainActivity extends AppCompatActivity {
                     if (ok) {
                         showAttachState(1, label, null, null);
                     } else {
-                        showAttachState(2, "Couldn't attach — grant USB access, then retry", "Retry",
-                                v -> autoAttachToVm(report));
+                        String why = usb == null ? null : usb.lastAttachError();
+                        String msg = (why == null || why.isEmpty())
+                                ? "Couldn't attach — grant USB access, then retry" : why;
+                        showAttachState(2, msg, "Retry", v -> autoAttachToVm(report));
                     }
                 });
             });
