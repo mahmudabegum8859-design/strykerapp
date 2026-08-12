@@ -19,12 +19,14 @@ public final class RootlessEngine {
 
     private static final String TAG = "RootlessEngine";
     // First boot on a slow phone (TCG emulation + disk grow + resize2fs) can take
-    // ~170 s. We wait a base window and then extend it 60 s at a time as long as the
-    // guest keeps writing to the boot log, up to a hard cap. A QEMU that is stuck
-    // stops producing log output, so it bails out 60 s after the last progress.
+    // ~170-240 s. We wait a base window and then extend it 60 s at a time as long as
+    // the guest keeps writing to the serial/console log, up to a hard cap. A QEMU
+    // that is stuck stops producing output, so it bails out 60 s after the last
+    // progress. Progress is measured on the SERIAL log (guest console output), not
+    // QEMU stdout — with -display none the guest console goes to the serial chardev.
     private static final int BOOT_TIMEOUT_MS = 180_000;
     private static final int BOOT_EXTEND_MS = 60_000;
-    private static final int BOOT_HARD_CAP_MS = 360_000;
+    private static final int BOOT_HARD_CAP_MS = 420_000;
     private static final String PROMPT_MARK = "__OPXDEMON_ID__";
 
     private static volatile RootlessEngine instance;
@@ -50,6 +52,10 @@ public final class RootlessEngine {
     private volatile boolean lastBootUsedFallback;
     private volatile boolean autoFallback = true;
     private volatile boolean stopRequested;
+    // Monotonic counter: every stop() bumps it. A boot attempt snapshots the value
+    // AFTER its pre-boot cleanup, so only stops requested DURING that attempt count
+    // as "stopped" — teardown of an older VM can no longer kill a new boot.
+    private volatile int bootGeneration;
     private volatile QmpClient qmp;
 
     private static final String NETDEV_ID = "net0";
@@ -141,6 +147,14 @@ public final class RootlessEngine {
         String reason = attemptBoot(listener);
         if (reason == null) { lastError = ""; return true; }
 
+        // "stopped" is not a boot failure — the user (or a teardown) asked to stop,
+        // so there is nothing to fall back to. Return without touching the profile.
+        if ("stopped".equals(reason)) {
+            lastError = reason;
+            if (listener != null) listener.onFailed(reason);
+            return false;
+        }
+
         Core prefs = prefs();
         if (autoFallback && prefs != null && !VmSpecs.safeBoot(prefs)) {
             lastError = reason;
@@ -173,12 +187,13 @@ public final class RootlessEngine {
 
     private String attemptBoot(BootListener listener) {
         try {
-            // Kill any leftover QEMU WITHOUT going through stop(): stop() sets
-            // stopRequested=true, which would make this new boot attempt return
-            // "stopped" instantly — the loop you saw in the log where every retry
-            // died with "VM boot failed (stopped)" before it even started.
+            // Kill any leftover QEMU WITHOUT going through stop(): stop() bumps
+            // bootGeneration, and this attempt must only treat stops that happen
+            // AFTER its own snapshot as "stopped" — otherwise tearing down an old
+            // VM makes the new boot die instantly with "stopped" (your log's loop).
             killProcessOnly(12_000);
             stopRequested = false;
+            int gen = bootGeneration;
             clearStaleSockets();
             ensureExecutable();
             autoGrowDisk();
@@ -198,15 +213,20 @@ public final class RootlessEngine {
 
             new Thread(() -> pumpBootLog(proc, listener), "opxdemon-qemu-log").start();
 
+            // Progress = the guest console keeps growing (serial chardev logfile AND
+            // QEMU stdout are both watched — the active one varies by boot stage).
+            // The baseline must be the CURRENT combined length, not -1: starting
+            // from -1 capped the wait at 60 s ("Boot timed out after 62s").
+            File serialLog = RootlessPaths.serialLog(app);
             File bootLog = RootlessPaths.bootLog(app);
-            long bootLogLen = -1;
+            long bootLogLen = logLen(serialLog) + logLen(bootLog);
             long startedAt = System.currentTimeMillis();
             long deadline = startedAt + BOOT_TIMEOUT_MS;
             long hardCap = startedAt + BOOT_HARD_CAP_MS;
             while (true) {
                 long now = System.currentTimeMillis();
                 if (now >= hardCap) break;
-                if (stopRequested) return "stopped";
+                if (bootGeneration != gen) return "stopped";
                 if (!isAlive(proc)) {
                     return "QEMU exited during boot (code " + safeExit(proc) + "): " + lastLogProblem();
                 }
@@ -217,7 +237,7 @@ public final class RootlessEngine {
                 }
                 // The guest is still writing boot output -> it is making progress,
                 // so give it more time instead of failing a slow-but-healthy boot.
-                long len = bootLog.exists() ? bootLog.length() : 0;
+                long len = logLen(serialLog) + logLen(bootLog);
                 if (len != bootLogLen) {
                     bootLogLen = len;
                     deadline = Math.min(now + BOOT_EXTEND_MS, hardCap);
@@ -226,11 +246,18 @@ public final class RootlessEngine {
                 sleep(1000);
             }
             long elapsed = (System.currentTimeMillis() - startedAt) / 1000;
+            // Do not leave an orphan QEMU running after a timeout — the next attempt
+            // (or a status check) would otherwise see a live-but-unbooted process.
+            killProcessOnly(10_000);
             return "Boot timed out after " + elapsed + "s with no guest output";
         } catch (Exception e) {
             Log.e(TAG, "start failed", e);
             return e.getMessage() == null ? e.toString() : e.getMessage();
         }
+    }
+
+    private static long logLen(File f) {
+        return f != null && f.exists() ? f.length() : 0;
     }
 
     public String lastError() {
@@ -375,13 +402,24 @@ public final class RootlessEngine {
         }
         Process target = live != null ? live : dying;
         dyingProcess = target;
+        // Escalate instead of waiting for a healthy VM to die on its own:
+        // 2 s grace -> gentle destroy -> 2 s -> forced kill.
         long deadline = System.currentTimeMillis() + timeoutMs;
-        while (System.currentTimeMillis() < deadline && isAlive(target)) {
+        long escalateAt = System.currentTimeMillis() + 2000;
+        boolean forced = false;
+        while (isAlive(target) && System.currentTimeMillis() < deadline) {
+            long now = System.currentTimeMillis();
+            if (now >= escalateAt) {
+                if (!forced) {
+                    destroy(target);
+                    forced = true;
+                    escalateAt = now + 2000;
+                } else {
+                    destroyForcibly(target);
+                    escalateAt = Long.MAX_VALUE;
+                }
+            }
             sleep(200);
-        }
-        if (isAlive(target)) {
-            destroyForcibly(target);
-            sleep(600);
         }
         if (!isAlive(target)) dyingProcess = null;
     }
@@ -410,6 +448,7 @@ public final class RootlessEngine {
 
     public void stop() {
         stopRequested = true;
+        bootGeneration++;
         booted = false;
         guestPrompt = "";
         final UsbPassthroughManager oldUsb = usb;
@@ -642,15 +681,26 @@ public final class RootlessEngine {
 
 
     public ArrayList<String> exec(String command) {
-        if (!isReady() && !startBlocking(null)) {
-            GuestExec.logToStore("VM is not running — start it from the dashboard, then retry");
+        if (!isReady()) {
+            // Deliberately do NOT auto-start the VM here: during a long first boot
+            // any feature call would kill the booting VM and restart it (each restart
+            // loses all the progress), which is what made boots "never finish".
+            if (isRunning()) {
+                GuestExec.logToStore(booted
+                        ? "VM is not responding — restart it from the dashboard, then retry"
+                        : "VM is still booting — wait for it to finish, then retry");
+            } else {
+                GuestExec.logToStore("VM is not running — start it from the dashboard, then retry");
+            }
             return new ArrayList<>();
         }
         return GuestExec.run(command);
     }
 
     public GuestExec.Session openStream(String command) throws java.io.IOException {
-        if (!isReady()) startBlocking(null);
+        if (!isReady()) {
+            throw new java.io.IOException("VM is not ready (still booting?)");
+        }
         return GuestExec.openJob(command);
     }
 
@@ -1111,6 +1161,10 @@ public final class RootlessEngine {
 
     private static int safeExit(Process p) {
         try { return p.exitValue(); } catch (Exception e) { return -1; }
+    }
+
+    private static void destroy(Process p) {
+        try { p.destroy(); } catch (Throwable ignored) {}
     }
 
     private static void destroyForcibly(Process p) {
