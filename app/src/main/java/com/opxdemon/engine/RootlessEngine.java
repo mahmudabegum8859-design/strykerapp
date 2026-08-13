@@ -352,26 +352,23 @@ public final class RootlessEngine {
     private void killAndAwait(long timeoutMs) {
         Process live = qemuProcess;
         Process dying = dyingProcess;
-        if (live == null && (dying == null || !isAlive(dying))) {
-            dyingProcess = null;
-            return;
-        }
         if (live != null) stop();
+        
+        java.util.List<Process> targets = new java.util.ArrayList<>();
+        if (live != null) targets.add(live);
+        if (dying != null && live != dying) targets.add(dying);
+        
         long deadline = System.currentTimeMillis() + timeoutMs;
-        while (System.currentTimeMillis() < deadline) {
-            Process p = dyingProcess;
-            if (p == null || !isAlive(p)) {
-                dyingProcess = null;
-                return;
+        for (Process p : targets) {
+            while (isAlive(p) && System.currentTimeMillis() < deadline) {
+                sleep(200);
             }
-            sleep(200);
+            if (isAlive(p)) {
+                destroyForcibly(p);
+                sleep(600);
+            }
         }
-        Process p = dyingProcess;
-        if (p != null && isAlive(p)) {
-            destroyForcibly(p);
-            sleep(600);
-        }
-        if (p == null || !isAlive(p)) dyingProcess = null;
+        dyingProcess = null;
     }
 
     /**

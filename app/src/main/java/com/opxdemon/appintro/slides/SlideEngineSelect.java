@@ -61,8 +61,7 @@ public class SlideEngineSelect extends Fragment {
             selected = EngineType.ROOTLESS;
             cardRootless.setOnClickListener(v -> select(EngineType.ROOTLESS));
         } else {
-            rootlessNote.setVisibility(View.VISIBLE);
-            cardRootless.setAlpha(0.5f);
+            cardRootless.setVisibility(View.GONE);
             selected = EngineType.CHROOT;
         }
         cardChroot.setOnClickListener(v -> select(EngineType.CHROOT));
